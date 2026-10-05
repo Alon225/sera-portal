@@ -70,7 +70,7 @@ h1 { font-size: 18px; }
 h2 { font-size: 15px; }
 h3 { font-size: 13.5px; }
 p { margin: 0; }
-ol, ul { margin: 0; padding-left: 20px; }
+ol, ul { margin: 0; padding-inline-start: 20px; }
 li + li { margin-top: 4px; }
 code { font-family: var(--mono); font-size: 12.5px; }
 
@@ -349,7 +349,7 @@ table {
   font-size: 13px;
 }
 th {
-  text-align: left;
+  text-align: start;
   font-size: 10.5px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -365,7 +365,7 @@ td {
   vertical-align: middle;
 }
 tr:last-child td { border-bottom: none; }
-td.num, th.num { text-align: right; white-space: nowrap; }
+td.num, th.num { text-align: end; white-space: nowrap; }
 td.nowrap { white-space: nowrap; }
 tr.row-click { cursor: pointer; }
 tr.row-click:hover td { background: var(--card-2); }
@@ -444,7 +444,7 @@ dialog .dialog-actions {
   max-width: 420px;
   background: var(--card);
   border: 1px solid var(--border);
-  border-left: 3px solid var(--text-3);
+  border-inline-start: 3px solid var(--text-3);
   border-radius: var(--radius-sm);
   padding: 10px 12px;
   box-shadow: var(--shadow);
@@ -453,12 +453,125 @@ dialog .dialog-actions {
   transition: opacity 0.25s ease;
 }
 .toast.out { opacity: 0; }
-.toast-success { border-left-color: var(--success); }
-.toast-warning { border-left-color: var(--warning); }
-.toast-danger { border-left-color: var(--danger); }
-.toast-info { border-left-color: var(--accent); }
+.toast-success { border-inline-start-color: var(--success); }
+.toast-warning { border-inline-start-color: var(--warning); }
+.toast-danger { border-inline-start-color: var(--danger); }
+.toast-info { border-inline-start-color: var(--accent); }
+
+/* ---------- language toggle ---------- */
+
+.lang-toggle {
+  display: inline-flex;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--card-2);
+}
+.lang-toggle button {
+  height: 100%;
+  min-width: 36px;
+  padding: 0 9px;
+  border: none;
+  background: transparent;
+  color: var(--text-2);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  line-height: 1;
+}
+.lang-toggle button + button { border-inline-start: 1px solid var(--border); }
+.lang-toggle button:hover { color: var(--text); }
+.lang-toggle button.active { background: var(--accent); color: var(--accent-ink); }
+.lang-toggle button:focus-visible { outline-offset: -2px; }
+
+/* ---------- tabs ---------- */
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+}
+.tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: 8px 12px;
+  color: var(--text-2);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.tab:hover { color: var(--text); }
+.tab[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
+
+/* ---------- stat tiles (diagnostics) ---------- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+}
+.stat {
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+.stat .n { font-size: 24px; font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat .l { font-size: 12px; color: var(--text-2); margin-top: 4px; }
+.stat.danger .n { color: var(--danger); }
+.stat.success .n { color: var(--success); }
+
+/* ---------- stack traces (diagnostics) ---------- */
+
+tr.stack-row > td { padding-top: 0; }
+.stack-pre {
+  margin: 0;
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.4;
+  max-height: 260px;
+  max-width: 100%;
+  overflow: auto;
+  white-space: pre;
+  direction: ltr;
+  text-align: left;
+}
+.msg-cell { max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ---------- misc ---------- */
 
 .steps li { margin-top: 6px; }
 .gear { font-size: 15px; line-height: 1; }
+
+/* ---------- RTL (Hebrew) ----------
+   Layout already uses flex/grid and logical properties; the rules below keep
+   Latin identifiers (hashes, keys, URLs, code) left-to-right and drop the
+   letter-spacing that only suits uppercase Latin labels. */
+
+[dir="rtl"] .eyebrow,
+[dir="rtl"] th,
+[dir="rtl"] .kv .k { letter-spacing: 0; }
+
+[dir="rtl"] .mono,
+[dir="rtl"] code,
+[dir="rtl"] .key-big,
+[dir="rtl"] .ellipsis { direction: ltr; unicode-bidi: isolate; }
+[dir="rtl"] td.mono,
+[dir="rtl"] td .ellipsis { text-align: right; }
+[dir="rtl"] .key-big { text-align: center; }
+
+[dir="rtl"] input[type="url"],
+[dir="rtl"] input[type="email"],
+[dir="rtl"] input[type="password"],
+[dir="rtl"] .input.mono { direction: ltr; text-align: left; }
+[dir="rtl"] .input-xs { text-align: center; }

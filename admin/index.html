@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
 <meta name="color-scheme" content="dark light">
-<title>SERA Management · Admin</title>
+<title data-i18n="admin.title">SERA Management · Admin</title>
 <link rel="stylesheet" href="../shared.css">
 </head>
 <body>
@@ -14,102 +14,157 @@
 
   <header class="topbar">
     <div>
-      <div class="eyebrow">SERA Management</div>
-      <h1>Admin</h1>
+      <div class="eyebrow" data-i18n="common.brand">SERA Management</div>
+      <h1 data-i18n="admin.h1">Admin</h1>
     </div>
     <div class="row">
       <span id="conn" class="conn-pill" aria-live="polite">Not connected</span>
-      <button id="btn-disconnect" class="btn btn-sm hidden" type="button">Disconnect</button>
-      <button class="btn btn-sm btn-icon" type="button" data-sera-settings title="Server settings" aria-label="Server settings"><span class="gear">&#9881;</span></button>
+      <button id="btn-disconnect" class="btn btn-sm hidden" type="button" data-i18n="admin.disconnect">Disconnect</button>
+      <div class="lang-toggle" role="group" data-i18n-title="common.language">
+        <button type="button" data-sera-lang="en" lang="en">EN</button>
+        <button type="button" data-sera-lang="he" lang="he">עב</button>
+      </div>
+      <button class="btn btn-sm btn-icon" type="button" data-sera-settings data-i18n-title="common.server_settings" title="Server settings" aria-label="Server settings"><span class="gear">&#9881;</span></button>
     </div>
   </header>
 
   <!-- Connect form (shown until a token is stored) -->
   <section id="view-connect" class="card">
-    <div class="eyebrow">Connect</div>
-    <h2>Admin token</h2>
-    <p class="muted" style="margin:6px 0 14px">The token is kept in this browser only (localStorage) and sent as a request header. It is never placed in the URL.</p>
+    <div class="eyebrow" data-i18n="admin.connect.eyebrow">Connect</div>
+    <h2 data-i18n="admin.connect.title">Admin token</h2>
+    <p class="muted" style="margin:6px 0 14px" data-i18n="admin.connect.body">The token is kept in this browser only (localStorage) and sent as a request header. It is never placed in the URL.</p>
     <form id="form-connect" class="stack-sm">
       <div class="field">
-        <label class="label" for="in-base">API base URL</label>
+        <label class="label" for="in-base" data-i18n="admin.connect.base">API base URL</label>
         <input id="in-base" class="input" type="url" autocomplete="off" spellcheck="false" required>
       </div>
       <div class="field">
-        <label class="label" for="in-token">Admin token</label>
+        <label class="label" for="in-token" data-i18n="admin.connect.token">Admin token</label>
         <input id="in-token" class="input" type="password" autocomplete="off" required>
       </div>
       <div id="connect-msg" class="msg msg-danger hidden" role="alert"></div>
       <div class="row">
-        <button id="btn-connect" class="btn btn-primary" type="submit">Connect</button>
+        <button id="btn-connect" class="btn btn-primary" type="submit" data-i18n="admin.connect.btn">Connect</button>
       </div>
     </form>
   </section>
 
   <!-- Main view -->
   <main id="view-main" class="stack hidden">
-    <section class="card">
-      <div class="row between" style="margin-bottom:12px">
-        <div class="row grow">
-          <input id="in-search" class="input grow" type="search" placeholder="Search email, plan, note…" autocomplete="off" aria-label="Search customers">
-          <button id="btn-refresh" class="btn" type="button">Refresh</button>
-        </div>
-        <button id="btn-new" class="btn btn-primary" type="button">New customer</button>
-      </div>
-      <div id="list-msg" class="msg hidden"></div>
-      <div class="table-wrap">
-        <table id="tbl-customers">
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Plan</th>
-              <th>Status</th>
-              <th>Period end</th>
-              <th class="num">Devices</th>
-              <th>Note</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <div id="list-empty" class="faint hidden" style="padding:12px 0 4px">No customers found.</div>
-    </section>
+    <div class="tabs" role="tablist">
+      <button class="tab" type="button" role="tab" id="tab-customers" aria-selected="true" aria-controls="panel-customers" data-tab="customers" data-i18n="admin.tab.customers">Customers</button>
+      <button class="tab" type="button" role="tab" id="tab-diag" aria-selected="false" aria-controls="panel-diag" data-tab="diag" data-i18n="admin.tab.diag">Diagnostics</button>
+    </div>
 
-    <section id="detail" class="card hidden" aria-live="polite"></section>
+    <div id="panel-customers" class="stack" role="tabpanel" aria-labelledby="tab-customers">
+      <section class="card">
+        <div class="row between" style="margin-bottom:12px">
+          <div class="row grow">
+            <input id="in-search" class="input grow" type="search" placeholder="Search email, plan, note…" autocomplete="off" aria-label="Search customers" data-i18n-placeholder="admin.search.placeholder" data-i18n-title="admin.search.label">
+            <button id="btn-refresh" class="btn" type="button" data-i18n="common.refresh">Refresh</button>
+          </div>
+          <button id="btn-new" class="btn btn-primary" type="button" data-i18n="admin.new">New customer</button>
+        </div>
+        <div id="list-msg" class="msg hidden"></div>
+        <div class="table-wrap">
+          <table id="tbl-customers">
+            <thead>
+              <tr>
+                <th data-i18n="admin.th.email">Email</th>
+                <th data-i18n="admin.th.plan">Plan</th>
+                <th data-i18n="admin.th.status">Status</th>
+                <th data-i18n="admin.th.period_end">Period end</th>
+                <th class="num" data-i18n="admin.th.devices">Devices</th>
+                <th data-i18n="admin.th.note">Note</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div id="list-empty" class="faint hidden" style="padding:12px 0 4px" data-i18n="admin.empty">No customers found.</div>
+      </section>
+
+      <section id="detail" class="card hidden" aria-live="polite"></section>
+    </div>
+
+    <!-- Diagnostics: opt-in crash reports / startup pings -->
+    <div id="panel-diag" class="stack hidden" role="tabpanel" aria-labelledby="tab-diag">
+      <section class="card stack-sm">
+        <div class="row between top">
+          <div>
+            <div class="eyebrow" data-i18n="admin.tab.diag">Diagnostics</div>
+            <h2 data-i18n="admin.diag.title">Crash reports and startups</h2>
+            <p class="muted small" style="margin-top:4px" data-i18n="admin.diag.body">Opt-in diagnostics sent by the desktop app. Newest first, up to 50 events.</p>
+          </div>
+          <div class="row">
+            <select id="diag-filter" class="input input-sm" style="width:auto" aria-label="Filter events" data-i18n-title="admin.diag.filter">
+              <option value="" data-i18n="admin.diag.filter.all">All events</option>
+              <option value="crash" data-i18n="admin.diag.filter.crash">Crashes</option>
+              <option value="startup" data-i18n="admin.diag.filter.startup">Startups</option>
+            </select>
+            <button id="btn-diag-refresh" class="btn btn-sm" type="button" data-i18n="common.refresh">Refresh</button>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat danger"><div class="n" id="diag-crashes">—</div><div class="l" data-i18n="admin.diag.crashes7">Crashes (last 7 days)</div></div>
+          <div class="stat success"><div class="n" id="diag-startups">—</div><div class="l" data-i18n="admin.diag.startups7">Startups (last 7 days)</div></div>
+        </div>
+        <div id="diag-msg" class="msg hidden"></div>
+        <div class="table-wrap">
+          <table id="tbl-diag" class="compact">
+            <thead>
+              <tr>
+                <th data-i18n="admin.diag.th.time">Time</th>
+                <th data-i18n="admin.diag.th.kind">Kind</th>
+                <th data-i18n="admin.diag.th.app">App</th>
+                <th data-i18n="admin.diag.th.os">OS</th>
+                <th data-i18n="admin.diag.th.device">Device</th>
+                <th data-i18n="admin.diag.th.exception">Exception</th>
+                <th data-i18n="admin.diag.th.message">Message</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div id="diag-empty" class="faint hidden" style="padding:8px 0 0" data-i18n="admin.diag.empty">No events.</div>
+      </section>
+    </div>
   </main>
 
   <footer class="footer">
-    <span>SERA Management · not affiliated with NinjaTrader LLC</span>
-    <a href="#" data-sera-settings>Change server</a>
+    <span data-i18n="common.footer">SERA Management · not affiliated with NinjaTrader LLC</span>
+    <a href="#" data-sera-settings data-i18n="common.change_server">Change server</a>
   </footer>
 </div>
 
 <!-- New customer -->
 <dialog id="dlg-new">
   <form id="form-new" class="stack-sm">
-    <div class="eyebrow">New customer</div>
-    <h2>Create entitlement</h2>
+    <div class="eyebrow" data-i18n="admin.new">New customer</div>
+    <h2 data-i18n="admin.new.title">Create entitlement</h2>
     <div class="field">
-      <label class="label" for="new-email">Customer email</label>
+      <label class="label" for="new-email" data-i18n="admin.new.email">Customer email</label>
       <input id="new-email" class="input" type="email" required autocomplete="off" spellcheck="false">
     </div>
     <div class="fields-2">
       <div class="field">
-        <label class="label" for="new-months">Months (1–36)</label>
+        <label class="label" for="new-months" data-i18n="admin.new.months">Months (1–36)</label>
         <input id="new-months" class="input" type="number" min="1" max="36" step="1" value="12" required>
       </div>
       <div class="field">
-        <label class="label" for="new-devices">Max devices (1–20)</label>
+        <label class="label" for="new-devices" data-i18n="admin.new.devices">Max devices (1–20)</label>
         <input id="new-devices" class="input" type="number" min="1" max="20" step="1" value="2" required>
       </div>
     </div>
     <div class="field">
-      <label class="label" for="new-note">Note (optional)</label>
+      <label class="label" for="new-note" data-i18n="admin.new.note">Note (optional)</label>
       <input id="new-note" class="input" type="text" autocomplete="off" maxlength="500">
     </div>
     <div id="new-msg" class="msg msg-danger hidden" role="alert"></div>
     <div class="dialog-actions">
-      <button type="button" class="btn" id="new-cancel">Cancel</button>
-      <button type="submit" class="btn btn-primary" id="new-submit">Create</button>
+      <button type="button" class="btn" id="new-cancel" data-i18n="dlg.cancel">Cancel</button>
+      <button type="submit" class="btn btn-primary" id="new-submit" data-i18n="admin.new.create">Create</button>
     </div>
   </form>
 </dialog>
@@ -117,14 +172,14 @@
 <!-- One-time product key -->
 <dialog id="dlg-key">
   <div class="stack-sm">
-    <div class="eyebrow">Product key</div>
-    <h2 id="key-title">Product key</h2>
+    <div class="eyebrow" data-i18n="admin.key.eyebrow">Product key</div>
+    <h2 id="key-title" data-i18n="admin.key.eyebrow">Product key</h2>
     <p class="muted" id="key-sub"></p>
     <div class="key-big" id="key-value"></div>
-    <div class="msg msg-warning">This key is shown once. It will not be shown again — copy it now and send it to the customer.</div>
+    <div class="msg msg-warning" data-i18n="admin.key.warn">This key is shown once. It will not be shown again — copy it now and send it to the customer.</div>
     <div class="dialog-actions">
-      <button type="button" class="btn" id="key-copy">Copy</button>
-      <button type="button" class="btn btn-primary" id="key-close">I have saved the key</button>
+      <button type="button" class="btn" id="key-copy" data-i18n="common.copy">Copy</button>
+      <button type="button" class="btn btn-primary" id="key-close" data-i18n="admin.key.saved">I have saved the key</button>
     </div>
   </div>
 </dialog>
@@ -135,18 +190,324 @@
   'use strict';
   var S = window.Sera;
   var esc = S.esc;
+  var t = S.t;
   var ADMIN_KEY = 'sera.admin';
   var $ = function (sel, root) { return (root || document).querySelector(sel); };
+
+  /* ---------- strings ---------- */
+
+  S.i18n.extend({
+    en: {
+      'admin.title': 'SERA Management · Admin',
+      'admin.h1': 'Admin',
+      'admin.disconnect': 'Disconnect',
+      'admin.conn.none': 'Not connected',
+      'admin.conn.busy': 'Connecting…',
+      'admin.conn.ok': 'Connected · {host}',
+      'admin.conn.rejected': 'Token rejected',
+      'admin.conn.failed': 'Connection failed',
+      'admin.connect.eyebrow': 'Connect',
+      'admin.connect.title': 'Admin token',
+      'admin.connect.body': 'The token is kept in this browser only (localStorage) and sent as a request header. It is never placed in the URL.',
+      'admin.connect.base': 'API base URL',
+      'admin.connect.token': 'Admin token',
+      'admin.connect.btn': 'Connect',
+      'admin.connect.enter_token': 'Enter the admin token.',
+      'admin.connect.use_disconnect': ' Use Disconnect to enter a new token.',
+      'admin.disconnected': 'Disconnected. Token removed from this browser.',
+      'admin.tab.customers': 'Customers',
+      'admin.tab.diag': 'Diagnostics',
+      'admin.search.placeholder': 'Search email, plan, note…',
+      'admin.search.label': 'Search customers',
+      'admin.new': 'New customer',
+      'admin.th.email': 'Email',
+      'admin.th.plan': 'Plan',
+      'admin.th.status': 'Status',
+      'admin.th.period_end': 'Period end',
+      'admin.th.devices': 'Devices',
+      'admin.th.note': 'Note',
+      'admin.empty': 'No customers found.',
+      /* detail */
+      'admin.detail.customer': 'Customer',
+      'admin.detail.reload': 'Reload',
+      'admin.detail.plan': 'Plan',
+      'admin.detail.period_end': 'Period end',
+      'admin.detail.devices': 'Devices',
+      'admin.detail.devices_v': '{active} active / {max} max',
+      'admin.detail.devices_total': '({n} total)',
+      'admin.detail.billing': 'Billing',
+      'admin.detail.billing_stripe': 'Stripe',
+      'admin.detail.billing_manual': 'Manual',
+      'admin.detail.stripe_customer': 'Stripe customer',
+      'admin.detail.stripe_sub': 'Stripe subscription',
+      'admin.detail.created': 'Created',
+      'admin.detail.updated': 'Updated',
+      'admin.detail.note': 'Note',
+      'admin.detail.actions': 'Actions',
+      'admin.detail.extend_by': 'Extend by',
+      'admin.detail.extend_months_label': 'Months to extend',
+      'admin.detail.months': 'months',
+      'admin.detail.extend': 'Extend',
+      'admin.detail.reissue': 'Reissue key',
+      'admin.detail.revoke': 'Revoke',
+      'admin.devices.h': 'Devices',
+      'admin.devices.empty': 'No devices have activated this entitlement.',
+      'admin.devices.th.name': 'Name',
+      'admin.devices.th.hash': 'Hash',
+      'admin.devices.th.version': 'Version',
+      'admin.devices.th.first_seen': 'First seen',
+      'admin.devices.th.last_seen': 'Last seen',
+      'admin.devices.th.state': 'State',
+      'admin.devices.released': 'released',
+      'admin.devices.active': 'active',
+      'admin.devices.release': 'Release seat',
+      'admin.keys.h': 'Product keys',
+      'admin.keys.empty': 'No product keys.',
+      'admin.keys.th.id': 'Key id',
+      'admin.keys.th.created': 'Created',
+      'admin.keys.th.redeemed': 'Redeemed',
+      'admin.keys.th.revoked': 'Revoked',
+      'admin.keys.th.state': 'State',
+      'admin.keys.revoked': 'revoked',
+      'admin.keys.redeemed': 'redeemed',
+      'admin.keys.unused': 'unused',
+      'admin.leases.h': 'Leases',
+      'admin.leases.empty': 'No leases.',
+      'admin.leases.th.device': 'Device',
+      'admin.leases.th.issued': 'Issued',
+      'admin.leases.th.not_before': 'Not before',
+      'admin.leases.th.expires': 'Expires',
+      'admin.leases.th.key': 'Key',
+      'admin.legal.h': 'Terms accepted',
+      'admin.legal.empty': 'No terms acceptance recorded.',
+      'admin.legal.line': 'terms v{legal} · app {app} · {lang}',
+      'admin.audit.h': 'Recent audit',
+      'admin.audit.newest': 'newest first',
+      'admin.audit.empty': 'No audit entries.',
+      'admin.audit.by': 'by {actor}',
+      /* actions */
+      'admin.extend.range': 'Enter between 1 and 36 months.',
+      'admin.extend.busy': 'Extending…',
+      'admin.extend.done_one': 'Extended by {n} month',
+      'admin.extend.done': 'Extended by {n} months',
+      'admin.extend.new_end': ' · new period end {date}',
+      'admin.reissue.title': 'Generate a new product key?',
+      'admin.reissue.body': 'A new product key will be created for {email}. The previous key will no longer be valid for new activations, and the customer will need the new key.',
+      'admin.reissue.busy': 'Working…',
+      'admin.reissue.sub': 'New product key for {email}',
+      'admin.revoke.title': 'Revoke this entitlement?',
+      'admin.revoke.body': 'Access for {email} will be revoked. Its devices will stop validating. This is recorded in the audit log.',
+      'admin.revoke.reason': 'Reason (optional)',
+      'admin.revoke.reason_ph': 'e.g. refund, chargeback',
+      'admin.revoke.busy': 'Revoking…',
+      'admin.revoke.done': 'Entitlement revoked.',
+      'admin.release.title': 'Release this device seat?',
+      'admin.release.body': 'Device {hash} will be released and its seat freed. That computer will need to enter the product key again to activate.',
+      'admin.release.busy': 'Releasing…',
+      'admin.release.none': 'Nothing to release (seat was already free).',
+      'admin.release.done': 'Seat released.',
+      /* key dialog */
+      'admin.key.eyebrow': 'Product key',
+      'admin.key.warn': 'This key is shown once. It will not be shown again — copy it now and send it to the customer.',
+      'admin.key.saved': 'I have saved the key',
+      'admin.key.sub': 'Product key for {email}',
+      /* new customer */
+      'admin.new.title': 'Create entitlement',
+      'admin.new.email': 'Customer email',
+      'admin.new.months': 'Months (1–36)',
+      'admin.new.devices': 'Max devices (1–20)',
+      'admin.new.note': 'Note (optional)',
+      'admin.new.create': 'Create',
+      'admin.new.enter_email': 'Enter the customer email.',
+      'admin.new.months_range': 'Months must be between 1 and 36.',
+      'admin.new.devices_range': 'Max devices must be between 1 and 20.',
+      'admin.new.busy': 'Creating…',
+      /* diagnostics */
+      'admin.diag.title': 'Crash reports and startups',
+      'admin.diag.body': 'Opt-in diagnostics sent by the desktop app. Newest first, up to 50 events.',
+      'admin.diag.filter': 'Filter events',
+      'admin.diag.filter.all': 'All events',
+      'admin.diag.filter.crash': 'Crashes',
+      'admin.diag.filter.startup': 'Startups',
+      'admin.diag.crashes7': 'Crashes (last 7 days)',
+      'admin.diag.startups7': 'Startups (last 7 days)',
+      'admin.diag.th.time': 'Time',
+      'admin.diag.th.kind': 'Kind',
+      'admin.diag.th.app': 'App',
+      'admin.diag.th.os': 'OS',
+      'admin.diag.th.device': 'Device',
+      'admin.diag.th.exception': 'Exception',
+      'admin.diag.th.message': 'Message',
+      'admin.diag.empty': 'No events.',
+      'admin.diag.kind.crash': 'crash',
+      'admin.diag.kind.startup': 'startup',
+      'admin.diag.stack': 'Stack',
+      'admin.diag.hide': 'Hide',
+      'admin.diag.details': 'Details',
+      'admin.diag.no_stack': 'No stack trace.'
+    },
+    he: {
+      'admin.title': 'SERA Management · ניהול',
+      'admin.h1': 'ניהול',
+      'admin.disconnect': 'התנתקות',
+      'admin.conn.none': 'לא מחובר',
+      'admin.conn.busy': 'מתחבר…',
+      'admin.conn.ok': 'מחובר · {host}',
+      'admin.conn.rejected': 'הטוקן נדחה',
+      'admin.conn.failed': 'החיבור נכשל',
+      'admin.connect.eyebrow': 'התחברות',
+      'admin.connect.title': 'טוקן ניהול',
+      'admin.connect.body': 'הטוקן נשמר בדפדפן זה בלבד (localStorage) ונשלח ככותרת בקשה. הוא לעולם לא מופיע בכתובת.',
+      'admin.connect.base': 'כתובת שרת ה-API',
+      'admin.connect.token': 'טוקן ניהול',
+      'admin.connect.btn': 'התחברות',
+      'admin.connect.enter_token': 'הזן את טוקן הניהול.',
+      'admin.connect.use_disconnect': ' לחץ "התנתקות" כדי להזין טוקן חדש.',
+      'admin.disconnected': 'התנתקת. הטוקן הוסר מהדפדפן.',
+      'admin.tab.customers': 'לקוחות',
+      'admin.tab.diag': 'אבחון',
+      'admin.search.placeholder': 'חיפוש לפי אימייל, תוכנית, הערה…',
+      'admin.search.label': 'חיפוש לקוחות',
+      'admin.new': 'לקוח חדש',
+      'admin.th.email': 'אימייל',
+      'admin.th.plan': 'תוכנית',
+      'admin.th.status': 'סטטוס',
+      'admin.th.period_end': 'סיום תקופה',
+      'admin.th.devices': 'מכשירים',
+      'admin.th.note': 'הערה',
+      'admin.empty': 'לא נמצאו לקוחות.',
+      'admin.detail.customer': 'לקוח',
+      'admin.detail.reload': 'טעינה מחדש',
+      'admin.detail.plan': 'תוכנית',
+      'admin.detail.period_end': 'סיום תקופה',
+      'admin.detail.devices': 'מכשירים',
+      'admin.detail.devices_v': '{active} פעילים / {max} מקסימום',
+      'admin.detail.devices_total': '({n} סה״כ)',
+      'admin.detail.billing': 'חיוב',
+      'admin.detail.billing_stripe': 'Stripe',
+      'admin.detail.billing_manual': 'ידני',
+      'admin.detail.stripe_customer': 'לקוח Stripe',
+      'admin.detail.stripe_sub': 'מנוי Stripe',
+      'admin.detail.created': 'נוצר',
+      'admin.detail.updated': 'עודכן',
+      'admin.detail.note': 'הערה',
+      'admin.detail.actions': 'פעולות',
+      'admin.detail.extend_by': 'הארכה ב-',
+      'admin.detail.extend_months_label': 'חודשים להארכה',
+      'admin.detail.months': 'חודשים',
+      'admin.detail.extend': 'הארכה',
+      'admin.detail.reissue': 'הנפקת מפתח חדש',
+      'admin.detail.revoke': 'ביטול רישיון',
+      'admin.devices.h': 'מכשירים',
+      'admin.devices.empty': 'אף מכשיר לא הפעיל רישיון זה.',
+      'admin.devices.th.name': 'שם',
+      'admin.devices.th.hash': 'מזהה',
+      'admin.devices.th.version': 'גרסה',
+      'admin.devices.th.first_seen': 'נראה לראשונה',
+      'admin.devices.th.last_seen': 'נראה לאחרונה',
+      'admin.devices.th.state': 'מצב',
+      'admin.devices.released': 'שוחרר',
+      'admin.devices.active': 'פעיל',
+      'admin.devices.release': 'שחרור מקום',
+      'admin.keys.h': 'מפתחות מוצר',
+      'admin.keys.empty': 'אין מפתחות מוצר.',
+      'admin.keys.th.id': 'מזהה מפתח',
+      'admin.keys.th.created': 'נוצר',
+      'admin.keys.th.redeemed': 'מומש',
+      'admin.keys.th.revoked': 'בוטל',
+      'admin.keys.th.state': 'מצב',
+      'admin.keys.revoked': 'בוטל',
+      'admin.keys.redeemed': 'מומש',
+      'admin.keys.unused': 'לא בשימוש',
+      'admin.leases.h': 'חכירות',
+      'admin.leases.empty': 'אין חכירות.',
+      'admin.leases.th.device': 'מכשיר',
+      'admin.leases.th.issued': 'הונפק',
+      'admin.leases.th.not_before': 'לא לפני',
+      'admin.leases.th.expires': 'פג',
+      'admin.leases.th.key': 'מפתח',
+      'admin.legal.h': 'אישור תנאי שימוש',
+      'admin.legal.empty': 'לא נרשם אישור תנאי שימוש.',
+      'admin.legal.line': 'תנאים גרסה {legal} · אפליקציה {app} · {lang}',
+      'admin.audit.h': 'יומן פעולות אחרון',
+      'admin.audit.newest': 'החדש ביותר ראשון',
+      'admin.audit.empty': 'אין רשומות ביומן.',
+      'admin.audit.by': 'על ידי {actor}',
+      'admin.extend.range': 'הזן בין 1 ל-36 חודשים.',
+      'admin.extend.busy': 'מאריך…',
+      'admin.extend.done_one': 'הוארך בחודש אחד',
+      'admin.extend.done': 'הוארך ב-{n} חודשים',
+      'admin.extend.new_end': ' · סיום תקופה חדש {date}',
+      'admin.reissue.title': 'להנפיק מפתח מוצר חדש?',
+      'admin.reissue.body': 'ייווצר מפתח מוצר חדש עבור {email}. המפתח הקודם לא יהיה תקף להפעלות חדשות, והלקוח יזדקק למפתח החדש.',
+      'admin.reissue.busy': 'מבצע…',
+      'admin.reissue.sub': 'מפתח מוצר חדש עבור {email}',
+      'admin.revoke.title': 'לבטל רישיון זה?',
+      'admin.revoke.body': 'הגישה של {email} תבוטל. המכשירים שלו יפסיקו לעבור אימות. הפעולה נרשמת ביומן.',
+      'admin.revoke.reason': 'סיבה (לא חובה)',
+      'admin.revoke.reason_ph': 'למשל החזר כספי, הכחשת עסקה',
+      'admin.revoke.busy': 'מבטל…',
+      'admin.revoke.done': 'הרישיון בוטל.',
+      'admin.release.title': 'לשחרר את המקום של מכשיר זה?',
+      'admin.release.body': 'המכשיר {hash} ישוחרר והמקום שלו יתפנה. המחשב הזה יצטרך להזין שוב את מפתח המוצר כדי להפעיל.',
+      'admin.release.busy': 'משחרר…',
+      'admin.release.none': 'אין מה לשחרר (המקום כבר היה פנוי).',
+      'admin.release.done': 'המקום שוחרר.',
+      'admin.key.eyebrow': 'מפתח מוצר',
+      'admin.key.warn': 'המפתח מוצג פעם אחת בלבד ולא יוצג שוב — העתק אותו עכשיו ושלח ללקוח.',
+      'admin.key.saved': 'שמרתי את המפתח',
+      'admin.key.sub': 'מפתח מוצר עבור {email}',
+      'admin.new.title': 'יצירת רישיון',
+      'admin.new.email': 'אימייל הלקוח',
+      'admin.new.months': 'חודשים (1–36)',
+      'admin.new.devices': 'מקסימום מכשירים (1–20)',
+      'admin.new.note': 'הערה (לא חובה)',
+      'admin.new.create': 'יצירה',
+      'admin.new.enter_email': 'הזן את אימייל הלקוח.',
+      'admin.new.months_range': 'מספר החודשים חייב להיות בין 1 ל-36.',
+      'admin.new.devices_range': 'מקסימום מכשירים חייב להיות בין 1 ל-20.',
+      'admin.new.busy': 'יוצר…',
+      'admin.diag.title': 'דוחות קריסה והפעלות',
+      'admin.diag.body': 'נתוני אבחון שנשלחים מהאפליקציה בהסכמת המשתמש. החדש ביותר ראשון, עד 50 אירועים.',
+      'admin.diag.filter': 'סינון אירועים',
+      'admin.diag.filter.all': 'כל האירועים',
+      'admin.diag.filter.crash': 'קריסות',
+      'admin.diag.filter.startup': 'הפעלות',
+      'admin.diag.crashes7': 'קריסות (7 ימים אחרונים)',
+      'admin.diag.startups7': 'הפעלות (7 ימים אחרונים)',
+      'admin.diag.th.time': 'זמן',
+      'admin.diag.th.kind': 'סוג',
+      'admin.diag.th.app': 'גרסה',
+      'admin.diag.th.os': 'מערכת הפעלה',
+      'admin.diag.th.device': 'מכשיר',
+      'admin.diag.th.exception': 'חריגה',
+      'admin.diag.th.message': 'הודעה',
+      'admin.diag.empty': 'אין אירועים.',
+      'admin.diag.kind.crash': 'קריסה',
+      'admin.diag.kind.startup': 'הפעלה',
+      'admin.diag.stack': 'Stack',
+      'admin.diag.hide': 'הסתרה',
+      'admin.diag.details': 'פרטים',
+      'admin.diag.no_stack': 'אין stack trace.'
+    }
+  });
+  S.applyLanguage(S.getLang(), { persist: false });
+  S.bindLangToggle();
 
   var token = loadToken();
   var entitlements = [];
   var selectedId = null;
   var detail = null; // last `get` response
   var searchTimer = null;
+  var connState = { state: '', key: 'admin.conn.none', params: null };
+  var diag = null; // last `telemetry` response
+  var diagLoaded = false;
+  var openStacks = {}; // event id -> true while its stack row is expanded
 
   var elConn = $('#conn');
   var elDetail = $('#detail');
   var tbody = $('#tbl-customers tbody');
+  var diagBody = $('#tbl-diag tbody');
 
   /* ---------- token storage ---------- */
 
@@ -172,22 +533,51 @@
 
   /* ---------- views ---------- */
 
-  function setConn(state, text) {
+  function setConn(state, key, params) {
+    connState = { state: state, key: key, params: params || null };
     elConn.className = 'conn-pill' + (state ? ' ' + state : '');
-    elConn.textContent = text;
+    elConn.textContent = t(key, params);
   }
   function showConnect() {
     $('#view-connect').classList.remove('hidden');
     $('#view-main').classList.add('hidden');
     $('#btn-disconnect').classList.add('hidden');
     $('#in-base').value = S.getBase();
-    setConn('', 'Not connected');
+    setConn('', 'admin.conn.none');
   }
   function showMain() {
     $('#view-connect').classList.add('hidden');
     $('#view-main').classList.remove('hidden');
     $('#btn-disconnect').classList.remove('hidden');
   }
+
+  /* ---------- tabs ---------- */
+
+  function selectTab(name) {
+    var tabs = document.querySelectorAll('.tab[data-tab]');
+    for (var i = 0; i < tabs.length; i++) {
+      var on = tabs[i].dataset.tab === name;
+      tabs[i].setAttribute('aria-selected', on ? 'true' : 'false');
+      tabs[i].tabIndex = on ? 0 : -1;
+    }
+    $('#panel-customers').classList.toggle('hidden', name !== 'customers');
+    $('#panel-diag').classList.toggle('hidden', name !== 'diag');
+    if (name === 'diag' && !diagLoaded && token) refreshDiag();
+  }
+  $('.tabs').addEventListener('click', function (e) {
+    var tab = e.target.closest('.tab[data-tab]');
+    if (tab) selectTab(tab.dataset.tab);
+  });
+  $('.tabs').addEventListener('keydown', function (e) {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab[data-tab]'));
+    var idx = tabs.indexOf(document.activeElement);
+    if (idx < 0) return;
+    e.preventDefault();
+    var next = tabs[(idx + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+    next.focus();
+    selectTab(next.dataset.tab);
+  });
 
   /* ---------- customer list ---------- */
 
@@ -229,10 +619,10 @@
 
   function refreshList() {
     var btn = $('#btn-refresh');
-    S.setBusy(btn, true, 'Loading…');
+    S.setBusy(btn, true, t('common.loading'));
     return loadList($('#in-search').value.trim()).catch(function (err) {
       S.showMsg($('#list-msg'), S.friendly(err), 'danger');
-      if (err.code === 'unauthorized') setConn('fail', 'Token rejected');
+      if (err.code === 'unauthorized') setConn('fail', 'admin.conn.rejected');
     }).then(function () { S.setBusy(btn, false); });
   }
 
@@ -252,14 +642,14 @@
     selectedId = id;
     renderList();
     elDetail.classList.remove('hidden');
-    if (!detail || detail.entitlement.id !== id) elDetail.innerHTML = '<div class="faint">Loading…</div>';
+    if (!detail || detail.entitlement.id !== id) elDetail.innerHTML = '<div class="faint">' + esc(t('common.loading')) + '</div>';
     return api('get', { entitlement_id: id }).then(function (res) {
       detail = res;
       renderDetail();
       if (!opts.noScroll) elDetail.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }).catch(function (err) {
       elDetail.innerHTML = '<div class="row between"><div class="msg msg-danger grow">' + esc(S.friendly(err)) +
-        '</div><button class="btn btn-sm" data-act="close" type="button">Close</button></div>';
+        '</div><button class="btn btn-sm" data-act="close" type="button">' + esc(t('common.close')) + '</button></div>';
     });
   }
 
@@ -279,57 +669,65 @@
     if (typeof d === 'string') return d;
     try { return JSON.stringify(d); } catch (e) { return String(d); }
   }
+  function th(keys) {
+    return '<tr>' + keys.map(function (k) { return '<th>' + (k ? esc(t(k)) : '') + '</th>'; }).join('') + '</tr>';
+  }
+  function sectionHead(titleKey, countHtml) {
+    return '<div class="section-head"><h3>' + esc(t(titleKey)) + '</h3><span class="faint small">' + countHtml + '</span></div>';
+  }
 
   function renderDetail() {
     var e = detail.entitlement || {};
     var devices = Array.isArray(detail.devices) ? detail.devices : [];
     var keys = Array.isArray(detail.product_keys) ? detail.product_keys : [];
     var leases = Array.isArray(detail.leases) ? detail.leases : [];
+    var legal = Array.isArray(detail.legal_acceptances) ? detail.legal_acceptances : [];
     var audit = (Array.isArray(detail.audit) ? detail.audit.slice() : []).sort(function (a, b) {
       return (S.parseDate(b.at) || 0) - (S.parseDate(a.at) || 0);
     });
-    var billing = e.stripe_subscription_id ? 'Stripe' : 'Manual';
+    var billing = e.stripe_subscription_id ? t('admin.detail.billing_stripe') : t('admin.detail.billing_manual');
 
     var html = '';
     html += '<div class="row between top" style="margin-bottom:14px">' +
-      '<div><div class="eyebrow">Customer</div>' +
+      '<div><div class="eyebrow">' + esc(t('admin.detail.customer')) + '</div>' +
       '<h2 class="row"><span class="break">' + esc(e.customer_email) + '</span>' + S.statusBadge(e.status) + '</h2>' +
       '<div class="mono faint break">' + esc(e.id) + '</div></div>' +
-      '<div class="row"><button class="btn btn-sm" data-act="reload" type="button">Reload</button>' +
-      '<button class="btn btn-sm" data-act="close" type="button">Close</button></div></div>';
+      '<div class="row"><button class="btn btn-sm" data-act="reload" type="button">' + esc(t('admin.detail.reload')) + '</button>' +
+      '<button class="btn btn-sm" data-act="close" type="button">' + esc(t('common.close')) + '</button></div></div>';
 
     html += '<div class="kv">' +
-      kv('Plan', esc(e.plan)) +
-      kv('Period end', S.dateWithRelative(e.current_period_end)) +
-      kv('Devices', num(e.active_devices) + ' active / ' + num(e.max_devices) + ' max' +
-        (e.total_devices !== undefined && e.total_devices !== null ? ' <span class="faint">(' + esc(e.total_devices) + ' total)</span>' : '')) +
-      kv('Billing', esc(billing)) +
-      kv('Stripe customer', e.stripe_customer_id ? '<span class="mono">' + esc(e.stripe_customer_id) + '</span>' : '') +
-      kv('Stripe subscription', e.stripe_subscription_id ? '<span class="mono">' + esc(e.stripe_subscription_id) + '</span>' : '') +
-      kv('Created', e.created_at ? esc(S.fmtDateTime(e.created_at)) : '') +
-      kv('Updated', e.updated_at ? esc(S.fmtDateTime(e.updated_at)) : '') +
-      kv('Note', e.note ? esc(e.note) : '') +
+      kv(t('admin.detail.plan'), esc(e.plan)) +
+      kv(t('admin.detail.period_end'), S.dateWithRelative(e.current_period_end)) +
+      kv(t('admin.detail.devices'), esc(t('admin.detail.devices_v', { active: e.active_devices === null || e.active_devices === undefined ? '—' : e.active_devices, max: e.max_devices === null || e.max_devices === undefined ? '—' : e.max_devices })) +
+        (e.total_devices !== undefined && e.total_devices !== null ? ' <span class="faint">' + esc(t('admin.detail.devices_total', { n: e.total_devices })) + '</span>' : '')) +
+      kv(t('admin.detail.billing'), esc(billing)) +
+      kv(t('admin.detail.stripe_customer'), e.stripe_customer_id ? '<span class="mono">' + esc(e.stripe_customer_id) + '</span>' : '') +
+      kv(t('admin.detail.stripe_sub'), e.stripe_subscription_id ? '<span class="mono">' + esc(e.stripe_subscription_id) + '</span>' : '') +
+      kv(t('admin.detail.created'), e.created_at ? esc(S.fmtDateTime(e.created_at)) : '') +
+      kv(t('admin.detail.updated'), e.updated_at ? esc(S.fmtDateTime(e.updated_at)) : '') +
+      kv(t('admin.detail.note'), e.note ? esc(e.note) : '') +
       '</div>';
 
     html += '<div class="card-inset subsection">' +
-      '<div class="eyebrow">Actions</div>' +
+      '<div class="eyebrow">' + esc(t('admin.detail.actions')) + '</div>' +
       '<div class="row">' +
-      '<span class="row" style="gap:6px"><label for="in-extend" class="muted">Extend by</label>' +
-      '<input id="in-extend" class="input input-xs" type="number" min="1" max="36" step="1" value="1" aria-label="Months to extend">' +
-      '<span class="muted">months</span>' +
-      '<button class="btn btn-sm" data-act="extend" type="button">Extend</button></span>' +
+      '<span class="row" style="gap:6px"><label for="in-extend" class="muted">' + esc(t('admin.detail.extend_by')) + '</label>' +
+      '<input id="in-extend" class="input input-xs" type="number" min="1" max="36" step="1" value="1" aria-label="' + esc(t('admin.detail.extend_months_label')) + '">' +
+      '<span class="muted">' + esc(t('admin.detail.months')) + '</span>' +
+      '<button class="btn btn-sm" data-act="extend" type="button">' + esc(t('admin.detail.extend')) + '</button></span>' +
       '<span class="faint">|</span>' +
-      '<button class="btn btn-sm" data-act="reissue" type="button">Reissue key</button>' +
-      '<button class="btn btn-sm btn-danger" data-act="revoke" type="button">Revoke</button>' +
+      '<button class="btn btn-sm" data-act="reissue" type="button">' + esc(t('admin.detail.reissue')) + '</button>' +
+      '<button class="btn btn-sm btn-danger" data-act="revoke" type="button">' + esc(t('admin.detail.revoke')) + '</button>' +
       '</div></div>';
 
     /* devices */
-    html += '<div class="subsection"><div class="section-head"><h3>Devices</h3><span class="faint small">' + devices.length + '</span></div>';
+    html += '<div class="subsection">' + sectionHead('admin.devices.h', devices.length);
     if (!devices.length) {
-      html += '<div class="faint">No devices have activated this entitlement.</div>';
+      html += '<div class="faint">' + esc(t('admin.devices.empty')) + '</div>';
     } else {
-      html += '<div class="table-wrap"><table class="compact"><thead><tr>' +
-        '<th>Name</th><th>Hash</th><th>Version</th><th>First seen</th><th>Last seen</th><th>State</th><th></th></tr></thead><tbody>';
+      html += '<div class="table-wrap"><table class="compact"><thead>' +
+        th(['admin.devices.th.name', 'admin.devices.th.hash', 'admin.devices.th.version', 'admin.devices.th.first_seen', 'admin.devices.th.last_seen', 'admin.devices.th.state', '']) +
+        '</thead><tbody>';
       devices.forEach(function (d) {
         var disabled = !!d.disabled_at;
         html += '<tr>' +
@@ -339,10 +737,10 @@
           '<td class="nowrap" title="' + esc(S.fmtDateTime(d.first_seen_at)) + '">' + esc(S.fmtDate(d.first_seen_at)) + '</td>' +
           '<td class="nowrap" title="' + esc(S.fmtDateTime(d.last_seen_at)) + '">' + esc(S.relative(d.last_seen_at) || '—') + '</td>' +
           '<td>' + (disabled
-            ? '<span class="badge badge-neutral" title="' + esc(S.fmtDateTime(d.disabled_at)) + '">released</span>'
-            : '<span class="badge badge-success">active</span>') + '</td>' +
+            ? '<span class="badge badge-neutral" title="' + esc(S.fmtDateTime(d.disabled_at)) + '">' + esc(t('admin.devices.released')) + '</span>'
+            : '<span class="badge badge-success">' + esc(t('admin.devices.active')) + '</span>') + '</td>' +
           '<td class="num">' + (disabled ? '' :
-            '<button class="btn btn-sm btn-danger" type="button" data-act="release" data-hash="' + esc(d.device_hash) + '">Release seat</button>') + '</td>' +
+            '<button class="btn btn-sm btn-danger" type="button" data-act="release" data-hash="' + esc(d.device_hash) + '">' + esc(t('admin.devices.release')) + '</button>') + '</td>' +
           '</tr>';
       });
       html += '</tbody></table></div>';
@@ -350,15 +748,16 @@
     html += '</div>';
 
     /* product keys */
-    html += '<div class="subsection"><div class="section-head"><h3>Product keys</h3><span class="faint small">' + keys.length + '</span></div>';
+    html += '<div class="subsection">' + sectionHead('admin.keys.h', keys.length);
     if (!keys.length) {
-      html += '<div class="faint">No product keys.</div>';
+      html += '<div class="faint">' + esc(t('admin.keys.empty')) + '</div>';
     } else {
-      html += '<div class="table-wrap"><table class="compact"><thead><tr><th>Key id</th><th>Created</th><th>Redeemed</th><th>Revoked</th><th>State</th></tr></thead><tbody>';
+      html += '<div class="table-wrap"><table class="compact"><thead>' +
+        th(['admin.keys.th.id', 'admin.keys.th.created', 'admin.keys.th.redeemed', 'admin.keys.th.revoked', 'admin.keys.th.state']) + '</thead><tbody>';
       keys.forEach(function (k) {
-        var state = k.revoked_at ? '<span class="badge badge-danger">revoked</span>'
-          : k.redeemed_at ? '<span class="badge badge-success">redeemed</span>'
-          : '<span class="badge badge-warning">unused</span>';
+        var state = k.revoked_at ? '<span class="badge badge-danger">' + esc(t('admin.keys.revoked')) + '</span>'
+          : k.redeemed_at ? '<span class="badge badge-success">' + esc(t('admin.keys.redeemed')) + '</span>'
+          : '<span class="badge badge-warning">' + esc(t('admin.keys.unused')) + '</span>';
         html += '<tr>' +
           '<td class="mono nowrap" title="' + esc(k.id) + '">' + esc(S.shortHash(k.id, 8)) + '</td>' +
           '<td class="nowrap">' + esc(S.fmtDateTime(k.created_at)) + '</td>' +
@@ -371,11 +770,12 @@
     html += '</div>';
 
     /* leases */
-    html += '<div class="subsection"><div class="section-head"><h3>Leases</h3><span class="faint small">' + leases.length + '</span></div>';
+    html += '<div class="subsection">' + sectionHead('admin.leases.h', leases.length);
     if (!leases.length) {
-      html += '<div class="faint">No leases.</div>';
+      html += '<div class="faint">' + esc(t('admin.leases.empty')) + '</div>';
     } else {
-      html += '<div class="table-wrap"><table class="compact"><thead><tr><th>Device</th><th>Issued</th><th>Not before</th><th>Expires</th><th>Key</th></tr></thead><tbody>';
+      html += '<div class="table-wrap"><table class="compact"><thead>' +
+        th(['admin.leases.th.device', 'admin.leases.th.issued', 'admin.leases.th.not_before', 'admin.leases.th.expires', 'admin.leases.th.key']) + '</thead><tbody>';
       leases.forEach(function (l) {
         var expired = S.parseDate(l.expires_at) && S.parseDate(l.expires_at) < new Date();
         html += '<tr>' +
@@ -390,16 +790,33 @@
     }
     html += '</div>';
 
+    /* terms accepted (legal_acceptances) */
+    html += '<div class="subsection">' + sectionHead('admin.legal.h', legal.length);
+    if (!legal.length) {
+      html += '<div class="faint">' + esc(t('admin.legal.empty')) + '</div>';
+    } else {
+      html += '<ul class="list">';
+      legal.forEach(function (a) {
+        html += '<li><div class="grow">' +
+          '<div><span class="mono" title="' + esc(a.device_hash) + '">' + esc(S.shortHash(a.device_hash, 8)) + '</span></div>' +
+          '<div class="meta">' + esc(t('admin.legal.line', { legal: a.legal_version || '—', app: a.app_version || '—', lang: a.language || '—' })) + '</div>' +
+          '</div><div class="meta nowrap" title="' + esc(S.fmtDateTime(a.accepted_at)) + '">' + esc(S.fmtDate(a.accepted_at)) +
+          ' <span class="faint">· ' + esc(S.relative(a.accepted_at)) + '</span></div></li>';
+      });
+      html += '</ul>';
+    }
+    html += '</div>';
+
     /* audit */
-    html += '<div class="subsection"><div class="section-head"><h3>Recent audit</h3><span class="faint small">newest first</span></div>';
+    html += '<div class="subsection">' + sectionHead('admin.audit.h', esc(t('admin.audit.newest')));
     if (!audit.length) {
-      html += '<div class="faint">No audit entries.</div>';
+      html += '<div class="faint">' + esc(t('admin.audit.empty')) + '</div>';
     } else {
       html += '<ul class="list">';
       audit.forEach(function (a) {
         html += '<li><div class="grow">' +
           '<div><span class="strong">' + esc(a.action) + '</span>' +
-          (a.actor ? ' <span class="muted">by ' + esc(a.actor) + '</span>' : '') +
+          (a.actor ? ' <span class="muted">' + esc(t('admin.audit.by', { actor: a.actor })) + '</span>' : '') +
           (a.device_hash ? ' <span class="mono faint" title="' + esc(a.device_hash) + '">' + esc(S.shortHash(a.device_hash, 12)) + '</span>' : '') +
           '</div>' +
           (detailsText(a.details) ? '<div class="meta break">' + esc(detailsText(a.details)) + '</div>' : '') +
@@ -435,11 +852,12 @@
 
   function doExtend(btn, id) {
     var months = parseInt($('#in-extend').value, 10);
-    if (!(months >= 1 && months <= 36)) { S.toast('Enter between 1 and 36 months.', 'warning'); return; }
-    S.setBusy(btn, true, 'Extending…');
+    if (!(months >= 1 && months <= 36)) { S.toast(t('admin.extend.range'), 'warning'); return; }
+    S.setBusy(btn, true, t('admin.extend.busy'));
     api('extend', { entitlement_id: id, months: months }).then(function (res) {
       var end = res.entitlement && res.entitlement.current_period_end;
-      S.toast('Extended by ' + months + ' month' + (months === 1 ? '' : 's') + (end ? ' · new period end ' + S.fmtDate(end) : '') + '.', 'success');
+      S.toast(t(months === 1 ? 'admin.extend.done_one' : 'admin.extend.done', { n: months }) +
+        (end ? t('admin.extend.new_end', { date: S.fmtDate(end) }) : '') + '.', 'success');
       return afterChange(id);
     }).catch(function (err) { S.toast(S.friendly(err), 'danger'); })
       .then(function () { S.setBusy(btn, false); });
@@ -447,16 +865,16 @@
 
   function doReissue(btn, id) {
     S.confirmDialog({
-      eyebrow: 'Reissue key',
-      title: 'Generate a new product key?',
-      body: 'A new product key will be created for ' + detail.entitlement.customer_email +
-        '. The previous key will no longer be valid for new activations, and the customer will need the new key.',
-      confirmLabel: 'Reissue key'
+      eyebrow: t('admin.detail.reissue'),
+      title: t('admin.reissue.title'),
+      body: t('admin.reissue.body', { email: detail.entitlement.customer_email }),
+      confirmLabel: t('admin.detail.reissue')
     }).then(function (r) {
       if (!r.ok) return;
-      S.setBusy(btn, true, 'Working…');
+      S.setBusy(btn, true, t('admin.reissue.busy'));
       return api('reissue_key', { entitlement_id: id }).then(function (res) {
-        showKey(res.product_key, 'New product key for ' + detail.entitlement.customer_email);
+        keySub = { key: 'admin.reissue.sub', params: { email: detail.entitlement.customer_email } };
+        showKey(res.product_key, t(keySub.key, keySub.params));
         return afterChange(id);
       }).catch(function (err) { S.toast(S.friendly(err), 'danger'); })
         .then(function () { S.setBusy(btn, false); });
@@ -465,19 +883,19 @@
 
   function doRevoke(btn, id) {
     S.confirmDialog({
-      eyebrow: 'Revoke',
-      title: 'Revoke this entitlement?',
-      body: 'Access for ' + detail.entitlement.customer_email + ' will be revoked. Its devices will stop validating. This is recorded in the audit log.',
-      confirmLabel: 'Revoke',
+      eyebrow: t('admin.detail.revoke'),
+      title: t('admin.revoke.title'),
+      body: t('admin.revoke.body', { email: detail.entitlement.customer_email }),
+      confirmLabel: t('admin.detail.revoke'),
       danger: true,
-      prompt: { label: 'Reason (optional)', placeholder: 'e.g. refund, chargeback' }
+      prompt: { label: t('admin.revoke.reason'), placeholder: t('admin.revoke.reason_ph') }
     }).then(function (r) {
       if (!r.ok) return;
-      S.setBusy(btn, true, 'Revoking…');
+      S.setBusy(btn, true, t('admin.revoke.busy'));
       var params = { entitlement_id: id };
       if (r.value) params.reason = r.value;
       return api('revoke', params).then(function () {
-        S.toast('Entitlement revoked.', 'success');
+        S.toast(t('admin.revoke.done'), 'success');
         return afterChange(id);
       }).catch(function (err) { S.toast(S.friendly(err), 'danger'); })
         .then(function () { S.setBusy(btn, false); });
@@ -486,39 +904,115 @@
 
   function doRelease(btn, id, hash) {
     S.confirmDialog({
-      eyebrow: 'Release seat',
-      title: 'Release this device seat?',
-      body: 'Device ' + S.shortHash(hash, 12) + ' will be released and its seat freed. That computer will need to enter the product key again to activate.',
-      confirmLabel: 'Release seat',
+      eyebrow: t('admin.devices.release'),
+      title: t('admin.release.title'),
+      body: t('admin.release.body', { hash: S.shortHash(hash, 12) }),
+      confirmLabel: t('admin.devices.release'),
       danger: true
     }).then(function (r) {
       if (!r.ok) return;
-      S.setBusy(btn, true, 'Releasing…');
+      S.setBusy(btn, true, t('admin.release.busy'));
       return api('release_seat', { entitlement_id: id, device_hash: hash }).then(function (res) {
-        S.toast(res.released === false ? 'Nothing to release (seat was already free).' : 'Seat released.', res.released === false ? 'warning' : 'success');
+        S.toast(res.released === false ? t('admin.release.none') : t('admin.release.done'), res.released === false ? 'warning' : 'success');
         return afterChange(id);
       }).catch(function (err) { S.toast(S.friendly(err), 'danger'); S.setBusy(btn, false); });
     });
   }
 
+  /* ---------- diagnostics (telemetry) ---------- */
+
+  function kindBadge(kind) {
+    var k = String(kind || '');
+    var cls = k === 'crash' ? 'badge-danger' : k === 'startup' ? 'badge-success' : 'badge-neutral';
+    var label = k === 'crash' || k === 'startup' ? t('admin.diag.kind.' + k) : (k || '—');
+    return '<span class="badge ' + cls + '">' + esc(label) + '</span>';
+  }
+
+  function renderDiag() {
+    var events = diag && Array.isArray(diag.events) ? diag.events : [];
+    var week = (diag && diag.last_7_days) || {};
+    $('#diag-crashes').textContent = week.crashes === undefined || week.crashes === null ? '—' : String(week.crashes);
+    $('#diag-startups').textContent = week.startups === undefined || week.startups === null ? '—' : String(week.startups);
+
+    diagBody.innerHTML = events.map(function (ev) {
+      var id = String(ev.id === undefined || ev.id === null ? '' : ev.id);
+      var open = !!openStacks[id];
+      var hasStack = !!(ev.stack || detailsText(ev.details));
+      var row = '<tr data-ev="' + esc(id) + '">' +
+        '<td class="nowrap" title="' + esc(S.fmtDateTime(ev.at)) + '">' + esc(S.fmtDateTime(ev.at)) + ' <span class="faint">· ' + esc(S.relative(ev.at)) + '</span></td>' +
+        '<td>' + kindBadge(ev.kind) + '</td>' +
+        '<td class="nowrap">' + esc(ev.app_version || '—') + '</td>' +
+        '<td class="nowrap">' + esc(ev.os_version || '—') + '</td>' +
+        '<td class="mono nowrap" title="' + esc(ev.device_hash_short || '') + '">' + esc(S.shortHash(ev.device_hash_short, 8) || '—') + '</td>' +
+        '<td class="mono nowrap" title="' + esc(ev.exception_type || '') + '">' + esc(ev.exception_type || '—') + '</td>' +
+        '<td><div class="msg-cell" title="' + esc(ev.message || '') + '">' + esc(ev.message || '—') + '</div></td>' +
+        '<td class="num">' + (hasStack
+          ? '<button class="btn btn-sm" type="button" data-stack="' + esc(id) + '" aria-expanded="' + (open ? 'true' : 'false') + '">' + esc(t(open ? 'admin.diag.hide' : 'admin.diag.stack')) + '</button>'
+          : '') + '</td>' +
+        '</tr>';
+      if (hasStack) {
+        var det = detailsText(ev.details);
+        row += '<tr class="stack-row' + (open ? '' : ' hidden') + '" data-ev-stack="' + esc(id) + '"><td colspan="8">' +
+          (ev.stack ? '<pre class="stack-pre" tabindex="0">' + esc(ev.stack) + '</pre>' : '<div class="faint small">' + esc(t('admin.diag.no_stack')) + '</div>') +
+          (det ? '<div class="meta break small" style="margin-top:6px"><span class="faint">' + esc(t('admin.diag.details')) + ':</span> <span class="mono">' + esc(det) + '</span></div>' : '') +
+          '</td></tr>';
+      }
+      return row;
+    }).join('');
+    $('#diag-empty').classList.toggle('hidden', events.length > 0);
+  }
+
+  diagBody.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-stack]');
+    if (!btn) return;
+    var id = btn.dataset.stack;
+    var row = diagBody.querySelector('tr[data-ev-stack="' + id.replace(/"/g, '\\"') + '"]');
+    if (!row) return;
+    var open = row.classList.toggle('hidden') === false;
+    openStacks[id] = open;
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    btn.textContent = t(open ? 'admin.diag.hide' : 'admin.diag.stack');
+  });
+
+  function refreshDiag() {
+    var btn = $('#btn-diag-refresh');
+    var msg = $('#diag-msg');
+    S.hideMsg(msg);
+    S.setBusy(btn, true, t('common.loading'));
+    var params = { limit: 50 };
+    var kind = $('#diag-filter').value;
+    if (kind === 'crash' || kind === 'startup') params.kind = kind;
+    return api('telemetry', params).then(function (res) {
+      diag = res;
+      diagLoaded = true;
+      renderDiag();
+    }).catch(function (err) {
+      S.showMsg(msg, S.friendly(err), 'danger');
+      if (err.code === 'unauthorized') setConn('fail', 'admin.conn.rejected');
+    }).then(function () { S.setBusy(btn, false); });
+  }
+  $('#btn-diag-refresh').addEventListener('click', refreshDiag);
+  $('#diag-filter').addEventListener('change', function () { openStacks = {}; refreshDiag(); });
+
   /* ---------- product key dialog (shown once) ---------- */
 
   var dlgKey = $('#dlg-key');
+  var keySub = null; // {key, params} so the subtitle survives a language switch
   function showKey(key, subtitle) {
     $('#key-value').textContent = key || '';
     $('#key-sub').textContent = subtitle || '';
     S.setBusy($('#key-copy'), false);
-    $('#key-copy').textContent = 'Copy';
+    $('#key-copy').textContent = t('common.copy');
     dlgKey.showModal();
   }
   $('#key-copy').addEventListener('click', function () {
     var btn = this;
     S.copyText($('#key-value').textContent).then(function (ok) {
-      btn.textContent = ok ? 'Copied' : 'Copy failed';
-      setTimeout(function () { btn.textContent = 'Copy'; }, 1800);
+      btn.textContent = t(ok ? 'common.copied' : 'common.copy_failed');
+      setTimeout(function () { btn.textContent = t('common.copy'); }, 1800);
     });
   });
-  function clearKey() { $('#key-value').textContent = ''; $('#key-sub').textContent = ''; }
+  function clearKey() { $('#key-value').textContent = ''; $('#key-sub').textContent = ''; keySub = null; }
   $('#key-close').addEventListener('click', function () { clearKey(); dlgKey.close(); });
   dlgKey.addEventListener('close', clearKey);
   dlgKey.addEventListener('cancel', function (e) { e.preventDefault(); clearKey(); dlgKey.close(); });
@@ -541,16 +1035,17 @@
     var note = $('#new-note').value.trim();
     var msg = $('#new-msg');
     S.hideMsg(msg);
-    if (!email) return S.showMsg(msg, 'Enter the customer email.', 'danger');
-    if (!(months >= 1 && months <= 36)) return S.showMsg(msg, 'Months must be between 1 and 36.', 'danger');
-    if (!(maxDevices >= 1 && maxDevices <= 20)) return S.showMsg(msg, 'Max devices must be between 1 and 20.', 'danger');
+    if (!email) return S.showMsg(msg, t('admin.new.enter_email'), 'danger');
+    if (!(months >= 1 && months <= 36)) return S.showMsg(msg, t('admin.new.months_range'), 'danger');
+    if (!(maxDevices >= 1 && maxDevices <= 20)) return S.showMsg(msg, t('admin.new.devices_range'), 'danger');
     var params = { customer_email: email, months: months, max_devices: maxDevices };
     if (note) params.note = note;
     var btn = $('#new-submit');
-    S.setBusy(btn, true, 'Creating…');
+    S.setBusy(btn, true, t('admin.new.busy'));
     api('create_entitlement', params).then(function (res) {
       dlgNew.close();
-      showKey(res.product_key, 'Product key for ' + email);
+      keySub = { key: 'admin.key.sub', params: { email: email } };
+      showKey(res.product_key, t(keySub.key, keySub.params));
       var newId = res.entitlement && res.entitlement.id;
       return loadList('').then(function () { $('#in-search').value = ''; if (newId) return openDetail(newId); })
         .catch(function (err) { S.toast(S.friendly(err), 'danger'); });
@@ -566,20 +1061,20 @@
     S.hideMsg(msg);
     var base = S.setBase($('#in-base').value);
     $('#in-base').value = base;
-    var t = $('#in-token').value.trim();
-    if (!t) return S.showMsg(msg, 'Enter the admin token.', 'danger');
-    token = t;
+    var tk = $('#in-token').value.trim();
+    if (!tk) return S.showMsg(msg, t('admin.connect.enter_token'), 'danger');
+    token = tk;
     var btn = $('#btn-connect');
-    S.setBusy(btn, true, 'Connecting…');
-    setConn('busy', 'Connecting…');
+    S.setBusy(btn, true, t('admin.conn.busy'));
+    setConn('busy', 'admin.conn.busy');
     loadList('').then(function () {
-      saveToken(t);
+      saveToken(tk);
       $('#in-token').value = '';
       showMain();
-      setConn('ok', 'Connected · ' + S.hostOf(base));
+      setConn('ok', 'admin.conn.ok', { host: S.hostOf(base) });
     }).catch(function (err) {
       token = '';
-      setConn('fail', 'Not connected');
+      setConn('fail', 'admin.conn.none');
       S.showMsg(msg, S.friendly(err), 'danger');
     }).then(function () { S.setBusy(btn, false); });
   });
@@ -588,35 +1083,51 @@
     saveToken('');
     token = '';
     entitlements = [];
+    diag = null;
+    diagLoaded = false;
+    openStacks = {};
+    renderDiag();
     closeDetail();
     $('#in-search').value = '';
+    selectTab('customers');
     showConnect();
-    S.toast('Disconnected. Token removed from this browser.', 'info');
+    S.toast(t('admin.disconnected'), 'info');
   });
 
   S.bindSettingsLinks(function (base) {
     $('#in-base').value = base;
     if (token) {
-      setConn('busy', 'Connecting…');
+      setConn('busy', 'admin.conn.busy');
+      diagLoaded = false;
       refreshList().then(function () {
-        if (elConn.classList.contains('busy')) setConn('ok', 'Connected · ' + S.hostOf(base));
+        if (elConn.classList.contains('busy')) setConn('ok', 'admin.conn.ok', { host: S.hostOf(base) });
       });
     }
+  });
+
+  /* ---------- language switch: re-render dynamic content ---------- */
+
+  S.onLanguage(function () {
+    setConn(connState.state, connState.key, connState.params);
+    renderList();
+    if (detail && !elDetail.classList.contains('hidden')) renderDetail();
+    if (diagLoaded) renderDiag();
+    if (keySub && dlgKey.open) $('#key-sub').textContent = t(keySub.key, keySub.params);
   });
 
   /* ---------- boot ---------- */
 
   if (token) {
     showMain();
-    setConn('busy', 'Connecting…');
+    setConn('busy', 'admin.conn.busy');
     loadList('').then(function () {
-      setConn('ok', 'Connected · ' + S.hostOf(S.getBase()));
+      setConn('ok', 'admin.conn.ok', { host: S.hostOf(S.getBase()) });
     }).catch(function (err) {
       if (err.code === 'unauthorized') {
-        setConn('fail', 'Token rejected');
-        S.showMsg($('#list-msg'), S.friendly(err) + ' Use Disconnect to enter a new token.', 'danger');
+        setConn('fail', 'admin.conn.rejected');
+        S.showMsg($('#list-msg'), S.friendly(err) + t('admin.connect.use_disconnect'), 'danger');
       } else {
-        setConn('fail', 'Connection failed');
+        setConn('fail', 'admin.conn.failed');
         S.showMsg($('#list-msg'), S.friendly(err), 'danger');
       }
     });

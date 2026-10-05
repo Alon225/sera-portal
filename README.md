@@ -7,11 +7,41 @@ no frameworks, no external scripts.
 ```
 web/
   index.html          landing page, links to the customer portal only
-  shared.css          Sera theme (dark by default, light via prefers-color-scheme)
-  shared.js           window.Sera: API calls, formatting, dialogs, toasts
-  admin/index.html    vendor admin panel (sera-admin function)
+  shared.css          Sera theme (dark by default, light via prefers-color-scheme), RTL rules
+  shared.js           window.Sera: API calls, formatting, dialogs, toasts, i18n
+  admin/index.html    vendor admin panel (sera-admin function): customers + diagnostics
   portal/index.html   customer portal (sera-customer function)
 ```
+
+## Languages (English / Hebrew)
+
+Both pages have an `EN / עב` toggle in the header. The choice is stored in
+`localStorage["sera.lang"]` (`"en"` or `"he"`); until the user picks one, the
+default comes from `navigator.language(s)` (`he*` -> Hebrew, otherwise English)
+and nothing is written. Hebrew sets `<html lang="he" dir="rtl">`; the layout
+uses flex/grid and logical CSS properties, and `shared.css` keeps hashes, keys,
+URLs and stack traces left-to-right inside RTL pages. Product names (SERA,
+NinjaTrader, Stripe) stay Latin in both languages.
+
+Implementation (`shared.js`, exposed on `window.Sera`):
+
+- `t(key, params)`: looks the key up in the active dictionary, falls back to
+  English, then to the key itself. `{name}` placeholders are substituted.
+- `applyLanguage(code, {persist, force})`: sets `<html lang dir>`, rebuilds the
+  `he-IL` / `en-US` date formatters, re-applies every `data-i18n` (text),
+  `data-i18n-placeholder` and `data-i18n-title` (title + aria-label) node,
+  marks the active `[data-sera-lang]` button and fires a `sera:lang` event on
+  `document` when the language changed. Pages listen with `Sera.onLanguage(fn)`
+  and re-render their dynamic HTML (lists, detail panel, diagnostics).
+- `bindLangToggle()`: wires `[data-sera-lang="en|he"]` buttons.
+- `getLang()`, `i18n.extend({en:{...}, he:{...}})`: each page adds its own
+  keys (`admin.*`, `portal.*`) on top of the shared ones (`err.*`, `rel.*`,
+  `status.*`, `dlg.*`, `common.*`).
+- `fmtDate`, `fmtDateTime` and `relative` follow the active locale, so
+  "Oct 5, 2026 · in 12 days" becomes "5 באוק׳ 2026 · בעוד 12 ימים".
+
+The English strings are the ones the pages shipped with before the toggle
+existed; they are unchanged.
 
 ## Deployment (GitHub Pages)
 
@@ -43,6 +73,8 @@ secret and consider restricting who knows the `/admin/` address.
   It is sent only as the `x-sera-admin-token` header, never in the URL.
 - Product key (portal): kept in `sessionStorage["sera.portal.key"]` only, so
   it is forgotten when the tab closes. "Forget key" clears it.
+- Language: `localStorage["sera.lang"]` (`en` | `he`), absent until the user
+  picks a language with the header toggle.
 
 All requests use a 15 second timeout. Errors are shown as friendly text; the
 request body and secrets are never logged.
@@ -67,6 +99,7 @@ must be deployed with JWT verification disabled (`verify_jwt = false`).
 | `extend` | `{entitlement_id, months}` | `{entitlement}` |
 | `revoke` | `{entitlement_id, reason?}` | `{entitlement}` |
 | `release_seat` | `{entitlement_id, device_hash}` | `{released}` |
+| `telemetry` | `{limit (1-200, page sends 50), kind?: "crash"\|"startup"}` | `{events:[...], last_7_days:{crashes, startups}}` |
 
 Entitlement fields: `id, customer_email, plan, status (active|past_due|canceled|expired),
 current_period_end, max_devices, stripe_customer_id, stripe_subscription_id, note,
@@ -78,6 +111,17 @@ created_at, updated_at, active_devices, total_devices`.
 - `product_keys[]`: `id, created_at, redeemed_at, revoked_at`
 - `leases[]`: `id, activation_id, device_hash, not_before, expires_at, key_id, issued_at`
 - `audit[]`: `id, at, actor, action, device_hash, details` (rendered newest first)
+- `legal_acceptances[]`: `id, device_hash, legal_version, app_version, language, accepted_at`
+  (rendered as the "Terms accepted" list: device short = first 8 chars of the
+  hash, terms version, app version, language, date)
+
+`telemetry` (Diagnostics tab): `events[]` are `id, at, kind ("crash"|"startup"),
+app_version, os_version, device_hash_short, exception_type, message, stack,
+details`. The tab shows the two 7-day counters, a kind filter (all / crashes /
+startups, sent as `kind`), a table (time, kind badge, app version, OS, device
+short, exception type, message) and a per-row "Stack" button that expands the
+escaped stack trace in a scrollable monospace block, with `details` (string or
+JSON) underneath. The tab loads on first open and on Refresh / filter change.
 
 ### `sera-customer` (no auth header; the product key is the credential)
 

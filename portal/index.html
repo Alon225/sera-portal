@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
 <meta name="color-scheme" content="dark light">
-<title>SERA Management · Customer portal</title>
+<title data-i18n="portal.title">SERA Management · Customer portal</title>
 <link rel="stylesheet" href="../shared.css">
 </head>
 <body>
@@ -13,32 +13,36 @@
 
   <header class="topbar">
     <div>
-      <div class="eyebrow">SERA Management</div>
-      <h1>Customer portal</h1>
+      <div class="eyebrow" data-i18n="common.brand">SERA Management</div>
+      <h1 data-i18n="portal.h1">Customer portal</h1>
     </div>
     <div class="row">
-      <button id="btn-forget" class="btn btn-sm hidden" type="button">Forget key</button>
-      <button class="btn btn-sm btn-icon" type="button" data-sera-settings title="Server settings" aria-label="Server settings"><span class="gear">&#9881;</span></button>
+      <button id="btn-forget" class="btn btn-sm hidden" type="button" data-i18n="portal.forget">Forget key</button>
+      <div class="lang-toggle" role="group" data-i18n-title="common.language">
+        <button type="button" data-sera-lang="en" lang="en">EN</button>
+        <button type="button" data-sera-lang="he" lang="he">עב</button>
+      </div>
+      <button class="btn btn-sm btn-icon" type="button" data-sera-settings data-i18n-title="common.server_settings" title="Server settings" aria-label="Server settings"><span class="gear">&#9881;</span></button>
     </div>
   </header>
 
   <!-- Product key entry -->
   <section id="view-key" class="card">
-    <div class="eyebrow">Product key</div>
-    <h2>Look up your subscription</h2>
-    <p class="muted" style="margin:6px 0 14px">Enter the product key you received after purchase to see your subscription, manage your computers and billing.</p>
+    <div class="eyebrow" data-i18n="portal.key.eyebrow">Product key</div>
+    <h2 data-i18n="portal.key.title">Look up your subscription</h2>
+    <p class="muted" style="margin:6px 0 14px" data-i18n="portal.key.body">Enter the product key you received after purchase to see your subscription, manage your computers and billing.</p>
     <form id="form-key" class="stack-sm">
       <div class="field">
-        <label class="label" for="in-key">Product key</label>
+        <label class="label" for="in-key" data-i18n="portal.key.eyebrow">Product key</label>
         <input id="in-key" class="input mono" type="text" placeholder="SERA-XXXX-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" required>
-        <div class="hint">Any case, with or without dashes.</div>
+        <div class="hint" data-i18n="portal.key.hint">Any case, with or without dashes.</div>
       </div>
       <div id="key-msg" class="msg msg-danger hidden" role="alert"></div>
       <div class="row">
-        <button id="btn-lookup" class="btn btn-primary" type="submit">Look up</button>
+        <button id="btn-lookup" class="btn btn-primary" type="submit" data-i18n="portal.key.lookup">Look up</button>
       </div>
     </form>
-    <p class="faint small" style="margin-top:14px">The key is kept only for this browser tab and is forgotten when the tab closes.</p>
+    <p class="faint small" style="margin-top:14px" data-i18n="portal.key.session">The key is kept only for this browser tab and is forgotten when the tab closes.</p>
   </section>
 
   <!-- Status view -->
@@ -47,37 +51,37 @@
     <section class="card" id="card-devices"></section>
 
     <section class="card" id="card-billing">
-      <div class="eyebrow">Billing</div>
+      <div class="eyebrow" data-i18n="portal.billing.eyebrow">Billing</div>
       <div class="row between">
-        <p class="muted grow">Update your payment method, download invoices or cancel the subscription.</p>
-        <button id="btn-billing" class="btn btn-primary" type="button">Manage billing</button>
+        <p class="muted grow" data-i18n="portal.billing.body">Update your payment method, download invoices or cancel the subscription.</p>
+        <button id="btn-billing" class="btn btn-primary" type="button" data-i18n="portal.billing.manage">Manage billing</button>
       </div>
       <div id="billing-msg" class="msg hidden" style="margin-top:12px"></div>
     </section>
 
     <section class="card" id="card-download">
-      <div class="eyebrow">Install</div>
+      <div class="eyebrow" data-i18n="portal.install.eyebrow">Install</div>
       <div class="row between" style="margin-bottom:10px">
-        <h2>Download SERA</h2>
-        <a class="btn" href="https://github.com/Alon225/sera-releases/releases/latest" target="_blank" rel="noopener noreferrer">Download SERA</a>
+        <h2 data-i18n="portal.install.download">Download SERA</h2>
+        <a class="btn" href="https://github.com/Alon225/sera-releases/releases/latest" target="_blank" rel="noopener noreferrer" data-i18n="portal.install.download">Download SERA</a>
       </div>
       <ol class="steps muted">
-        <li>Run <code>SERASetup.exe</code>.</li>
-        <li>Close NinjaTrader.</li>
-        <li>Run <code>GuardianBridgeSetup.exe</code>.</li>
-        <li>Start NinjaTrader, then start SERA.</li>
-        <li>Enter your product key when asked.</li>
+        <li><span data-i18n="portal.install.step1">Run</span> <code>SERASetup.exe</code>.</li>
+        <li data-i18n="portal.install.step2">Close NinjaTrader.</li>
+        <li><span data-i18n="portal.install.step1">Run</span> <code>GuardianBridgeSetup.exe</code>.</li>
+        <li data-i18n="portal.install.step4">Start NinjaTrader, then start SERA.</li>
+        <li data-i18n="portal.install.step5">Enter your product key when asked.</li>
       </ol>
-      <p class="faint small" style="margin-top:12px">Need help? Email <a href="mailto:alonjbtw@gmail.com">alonjbtw@gmail.com</a>.</p>
+      <p class="faint small" style="margin-top:12px"><span data-i18n="portal.install.help">Need help? Email</span> <a href="mailto:alonjbtw@gmail.com">alonjbtw@gmail.com</a>.</p>
     </section>
   </main>
 
   <footer class="footer">
-    <span>SERA Management · not affiliated with NinjaTrader LLC</span>
+    <span data-i18n="common.footer">SERA Management · not affiliated with NinjaTrader LLC</span>
     <span class="row">
-      <a href="mailto:alonjbtw@gmail.com">Support</a>
+      <a href="mailto:alonjbtw@gmail.com" data-i18n="common.support">Support</a>
       <span>·</span>
-      <a href="#" data-sera-settings>Change server</a>
+      <a href="#" data-sera-settings data-i18n="common.change_server">Change server</a>
     </span>
   </footer>
 </div>
@@ -88,9 +92,145 @@
   'use strict';
   var S = window.Sera;
   var esc = S.esc;
+  var t = S.t;
   var SESSION_KEY = 'sera.portal.key';
   var SUPPORT = 'alonjbtw@gmail.com';
   var $ = function (sel, root) { return (root || document).querySelector(sel); };
+
+  /* ---------- strings ---------- */
+
+  S.i18n.extend({
+    en: {
+      'portal.title': 'SERA Management · Customer portal',
+      'portal.h1': 'Customer portal',
+      'portal.forget': 'Forget key',
+      'portal.key.eyebrow': 'Product key',
+      'portal.key.title': 'Look up your subscription',
+      'portal.key.body': 'Enter the product key you received after purchase to see your subscription, manage your computers and billing.',
+      'portal.key.hint': 'Any case, with or without dashes.',
+      'portal.key.lookup': 'Look up',
+      'portal.key.session': 'The key is kept only for this browser tab and is forgotten when the tab closes.',
+      'portal.key.invalid': 'A product key looks like SERA-XXXX-XXXX-XXXX-XXXX (16 letters or digits after SERA). Check for missing characters.',
+      'portal.key.busy': 'Looking up…',
+      'portal.sub.eyebrow': 'Subscription',
+      'portal.sub.plan': 'Plan',
+      'portal.sub.renews': 'Renews on',
+      'portal.sub.valid_until': 'Valid until',
+      'portal.sub.period_end': 'Period end',
+      'portal.sub.access_ends': 'Access ends',
+      'portal.sub.ended': 'Ended on',
+      'portal.sub.seats': 'Seats used',
+      'portal.sub.billing': 'Billing',
+      'portal.sub.billing_stripe': 'Card (Stripe)',
+      'portal.sub.billing_manual': 'Manual',
+      'portal.sub.account': 'Account',
+      'portal.sub.key': 'Key',
+      'portal.sub.note.past_due': 'The last payment failed or is overdue. Use Manage billing to update the payment method.',
+      'portal.sub.note.canceled_future': 'This subscription is canceled. Access continues until the date above.',
+      'portal.sub.note.canceled': 'This subscription is canceled.',
+      'portal.sub.note.expired': 'This subscription has expired. Contact support to renew.',
+      'portal.devices.eyebrow': 'Computers',
+      'portal.devices.title': 'Activated computers',
+      'portal.devices.seats': '{active} of {max} seats in use',
+      'portal.devices.empty': 'No computer has activated this key yet. Install SERA and enter the product key to activate.',
+      'portal.devices.unnamed': 'Unnamed computer',
+      'portal.devices.released': 'released',
+      'portal.devices.active': 'active',
+      'portal.devices.version': 'v{v}',
+      'portal.devices.last_seen': 'last seen {rel}',
+      'portal.devices.first_seen': 'first seen {date}',
+      'portal.devices.released_on': 'released {date}',
+      'portal.devices.release': 'Release this computer',
+      'portal.devices.release_hint': 'Release a computer you no longer use to free its seat. Releasing a computer you still use will ask for the product key again on that machine.',
+      'portal.release.eyebrow': 'Release computer',
+      'portal.release.title': 'Release "{name}"?',
+      'portal.release.body': 'This frees the seat used by that computer. If SERA is still used there, it will stop and ask for the product key again before it can be activated.',
+      'portal.release.confirm': 'Release',
+      'portal.release.busy': 'Releasing…',
+      'portal.release.already': 'That computer was already released.',
+      'portal.release.done': 'Computer released. Its seat is free.',
+      'portal.billing.eyebrow': 'Billing',
+      'portal.billing.body': 'Update your payment method, download invoices or cancel the subscription.',
+      'portal.billing.manage': 'Manage billing',
+      'portal.billing.busy': 'Opening…',
+      'portal.billing.bad_link': 'The billing portal returned an unexpected link. Contact support at {email}.',
+      'portal.billing.opening': 'Opening the billing portal…',
+      'portal.billing.manual': 'Billing for this subscription is handled manually. Contact support at {email}.',
+      'portal.install.eyebrow': 'Install',
+      'portal.install.download': 'Download SERA',
+      'portal.install.step1': 'Run',
+      'portal.install.step2': 'Close NinjaTrader.',
+      'portal.install.step4': 'Start NinjaTrader, then start SERA.',
+      'portal.install.step5': 'Enter your product key when asked.',
+      'portal.install.help': 'Need help? Email'
+    },
+    he: {
+      'portal.title': 'SERA Management · פורטל לקוחות',
+      'portal.h1': 'פורטל לקוחות',
+      'portal.forget': 'שכח מפתח',
+      'portal.key.eyebrow': 'מפתח מוצר',
+      'portal.key.title': 'בדיקת המנוי שלך',
+      'portal.key.body': 'הזן את מפתח המוצר שקיבלת לאחר הרכישה כדי לראות את המנוי, לנהל את המחשבים שלך ואת החיוב.',
+      'portal.key.hint': 'אותיות גדולות או קטנות, עם או בלי מקפים.',
+      'portal.key.lookup': 'בדיקה',
+      'portal.key.session': 'המפתח נשמר רק בלשונית זו ונשכח כשהיא נסגרת.',
+      'portal.key.invalid': 'מפתח מוצר נראה כך: SERA-XXXX-XXXX-XXXX-XXXX (16 אותיות או ספרות אחרי SERA). בדוק אם חסרים תווים.',
+      'portal.key.busy': 'בודק…',
+      'portal.sub.eyebrow': 'מנוי',
+      'portal.sub.plan': 'תוכנית',
+      'portal.sub.renews': 'מתחדש ב-',
+      'portal.sub.valid_until': 'בתוקף עד',
+      'portal.sub.period_end': 'סיום תקופה',
+      'portal.sub.access_ends': 'הגישה מסתיימת',
+      'portal.sub.ended': 'הסתיים ב-',
+      'portal.sub.seats': 'מקומות בשימוש',
+      'portal.sub.billing': 'חיוב',
+      'portal.sub.billing_stripe': 'כרטיס (Stripe)',
+      'portal.sub.billing_manual': 'ידני',
+      'portal.sub.account': 'חשבון',
+      'portal.sub.key': 'מפתח',
+      'portal.sub.note.past_due': 'התשלום האחרון נכשל או באיחור. לחץ "ניהול חיוב" כדי לעדכן את אמצעי התשלום.',
+      'portal.sub.note.canceled_future': 'המנוי בוטל. הגישה נמשכת עד התאריך שלמעלה.',
+      'portal.sub.note.canceled': 'המנוי בוטל.',
+      'portal.sub.note.expired': 'תוקף המנוי פג. פנה לתמיכה כדי לחדש.',
+      'portal.devices.eyebrow': 'מחשבים',
+      'portal.devices.title': 'מחשבים מופעלים',
+      'portal.devices.seats': '{active} מתוך {max} מקומות בשימוש',
+      'portal.devices.empty': 'אף מחשב עדיין לא הפעיל מפתח זה. התקן את SERA והזן את מפתח המוצר כדי להפעיל.',
+      'portal.devices.unnamed': 'מחשב ללא שם',
+      'portal.devices.released': 'שוחרר',
+      'portal.devices.active': 'פעיל',
+      'portal.devices.version': 'גרסה {v}',
+      'portal.devices.last_seen': 'נראה לאחרונה {rel}',
+      'portal.devices.first_seen': 'נראה לראשונה {date}',
+      'portal.devices.released_on': 'שוחרר {date}',
+      'portal.devices.release': 'שחרור מחשב זה',
+      'portal.devices.release_hint': 'שחרר מחשב שאינך משתמש בו כדי לפנות את המקום שלו. שחרור מחשב שעדיין בשימוש ידרוש להזין בו שוב את מפתח המוצר.',
+      'portal.release.eyebrow': 'שחרור מחשב',
+      'portal.release.title': 'לשחרר את "{name}"?',
+      'portal.release.body': 'הפעולה מפנה את המקום של המחשב הזה. אם SERA עדיין בשימוש שם, היא תיעצר ותבקש שוב את מפתח המוצר לפני הפעלה מחדש.',
+      'portal.release.confirm': 'שחרור',
+      'portal.release.busy': 'משחרר…',
+      'portal.release.already': 'המחשב הזה כבר שוחרר.',
+      'portal.release.done': 'המחשב שוחרר. המקום שלו פנוי.',
+      'portal.billing.eyebrow': 'חיוב',
+      'portal.billing.body': 'עדכון אמצעי תשלום, הורדת חשבוניות או ביטול המנוי.',
+      'portal.billing.manage': 'ניהול חיוב',
+      'portal.billing.busy': 'פותח…',
+      'portal.billing.bad_link': 'פורטל החיוב החזיר קישור לא צפוי. פנה לתמיכה בכתובת {email}.',
+      'portal.billing.opening': 'פותח את פורטל החיוב…',
+      'portal.billing.manual': 'החיוב של מנוי זה מתבצע ידנית. פנה לתמיכה בכתובת {email}.',
+      'portal.install.eyebrow': 'התקנה',
+      'portal.install.download': 'הורדת SERA',
+      'portal.install.step1': 'הפעל את',
+      'portal.install.step2': 'סגור את NinjaTrader.',
+      'portal.install.step4': 'הפעל את NinjaTrader ואז את SERA.',
+      'portal.install.step5': 'הזן את מפתח המוצר כשתתבקש.',
+      'portal.install.help': 'צריך עזרה? כתוב ל-'
+    }
+  });
+  S.applyLanguage(S.getLang(), { persist: false });
+  S.bindLangToggle();
 
   var key = S.storageGet(sessionStorage, SESSION_KEY) || '';
   var data = null;
@@ -141,7 +281,7 @@
     S.hideMsg(keyMsg);
     var n = S.normalizeProductKey(inKey.value);
     if (!n.valid) {
-      S.showMsg(keyMsg, 'A product key looks like SERA-XXXX-XXXX-XXXX-XXXX (16 letters or digits after SERA). Check for missing characters.', 'danger');
+      S.showMsg(keyMsg, t('portal.key.invalid'), 'danger');
       return;
     }
     inKey.value = n.formatted;
@@ -149,7 +289,7 @@
   });
 
   function lookup(k, btn) {
-    S.setBusy(btn, true, 'Looking up…');
+    S.setBusy(btn, true, t('portal.key.busy'));
     return api('status', { product_key: k }).then(function (res) {
       data = res;
       key = k;
@@ -172,64 +312,65 @@
   function periodLabel(e) {
     var end = S.parseDate(e.current_period_end);
     var future = end && end.getTime() > Date.now();
-    if (e.status === 'active') return e.billing === 'stripe' ? 'Renews on' : 'Valid until';
-    if (e.status === 'past_due') return 'Period end';
-    return future ? 'Access ends' : 'Ended on';
+    if (e.status === 'active') return t(e.billing === 'stripe' ? 'portal.sub.renews' : 'portal.sub.valid_until');
+    if (e.status === 'past_due') return t('portal.sub.period_end');
+    return t(future ? 'portal.sub.access_ends' : 'portal.sub.ended');
   }
 
   function statusNote(e) {
     var end = S.parseDate(e.current_period_end);
     var future = end && end.getTime() > Date.now();
-    if (e.status === 'past_due') return { kind: 'warning', text: 'The last payment failed or is overdue. Use Manage billing to update the payment method.' };
-    if (e.status === 'canceled') return { kind: '', text: future ? 'This subscription is canceled. Access continues until the date above.' : 'This subscription is canceled.' };
-    if (e.status === 'expired') return { kind: 'danger', text: 'This subscription has expired. Contact support to renew.' };
+    if (e.status === 'past_due') return { kind: 'warning', text: t('portal.sub.note.past_due') };
+    if (e.status === 'canceled') return { kind: '', text: t(future ? 'portal.sub.note.canceled_future' : 'portal.sub.note.canceled') };
+    if (e.status === 'expired') return { kind: 'danger', text: t('portal.sub.note.expired') };
     return null;
   }
 
   function render() {
+    if (!data) return;
     var e = data.entitlement || {};
     var devices = Array.isArray(data.devices) ? data.devices : [];
     var note = statusNote(e);
-    var billing = e.billing === 'stripe' ? 'Card (Stripe)' : e.billing === 'manual' ? 'Manual' : (e.billing || '');
+    var billing = e.billing === 'stripe' ? t('portal.sub.billing_stripe') : e.billing === 'manual' ? t('portal.sub.billing_manual') : (e.billing || '');
 
     var html = '<div class="row between top" style="margin-bottom:14px">' +
-      '<div><div class="eyebrow">Subscription</div>' +
+      '<div><div class="eyebrow">' + esc(t('portal.sub.eyebrow')) + '</div>' +
       '<h2 class="row"><span>' + esc(e.plan || 'SERA') + '</span>' + S.statusBadge(e.status) + '</h2></div>' +
-      '<button class="btn btn-sm" type="button" data-act="refresh">Refresh</button></div>';
+      '<button class="btn btn-sm" type="button" data-act="refresh">' + esc(t('common.refresh')) + '</button></div>';
     html += '<div class="kv">' +
-      kv('Plan', esc(e.plan)) +
+      kv(t('portal.sub.plan'), esc(e.plan)) +
       kv(periodLabel(e), S.dateWithRelative(e.current_period_end)) +
-      kv('Seats used', (e.active_devices === undefined ? '—' : esc(e.active_devices)) + ' / ' + (e.max_devices === undefined ? '—' : esc(e.max_devices))) +
-      kv('Billing', esc(billing)) +
-      kv('Account', esc(e.customer_email_masked)) +
-      kv('Key', data.key_last4 ? '<span class="mono">SERA-••••-••••-••••-' + esc(data.key_last4) + '</span>' : '') +
+      kv(t('portal.sub.seats'), (e.active_devices === undefined ? '—' : esc(e.active_devices)) + ' / ' + (e.max_devices === undefined ? '—' : esc(e.max_devices))) +
+      kv(t('portal.sub.billing'), esc(billing)) +
+      kv(t('portal.sub.account'), esc(e.customer_email_masked)) +
+      kv(t('portal.sub.key'), data.key_last4 ? '<span class="mono">SERA-••••-••••-••••-' + esc(data.key_last4) + '</span>' : '') +
       '</div>';
     if (note) html += '<div class="msg' + (note.kind ? ' msg-' + note.kind : '') + '" style="margin-top:14px">' + esc(note.text) + '</div>';
     $('#card-sub').innerHTML = html;
 
     var active = devices.filter(function (d) { return !d.disabled_at; }).length;
-    html = '<div class="section-head"><div><div class="eyebrow">Computers</div><h2>Activated computers</h2></div>' +
-      '<span class="faint small">' + active + ' of ' + (e.max_devices === undefined ? '?' : esc(e.max_devices)) + ' seats in use</span></div>';
+    html = '<div class="section-head"><div><div class="eyebrow">' + esc(t('portal.devices.eyebrow')) + '</div><h2>' + esc(t('portal.devices.title')) + '</h2></div>' +
+      '<span class="faint small">' + esc(t('portal.devices.seats', { active: active, max: e.max_devices === undefined ? '?' : e.max_devices })) + '</span></div>';
     if (!devices.length) {
-      html += '<p class="muted">No computer has activated this key yet. Install SERA and enter the product key to activate.</p>';
+      html += '<p class="muted">' + esc(t('portal.devices.empty')) + '</p>';
     } else {
       html += '<ul class="list">';
       devices.forEach(function (d) {
         var disabled = !!d.disabled_at;
         html += '<li><div class="grow">' +
-          '<div class="row" style="gap:8px"><span class="strong">' + esc(d.device_name || 'Unnamed computer') + '</span>' +
-          (disabled ? '<span class="badge badge-neutral">released</span>' : '<span class="badge badge-success">active</span>') + '</div>' +
+          '<div class="row" style="gap:8px"><span class="strong">' + esc(d.device_name || t('portal.devices.unnamed')) + '</span>' +
+          (disabled ? '<span class="badge badge-neutral">' + esc(t('portal.devices.released')) + '</span>' : '<span class="badge badge-success">' + esc(t('portal.devices.active')) + '</span>') + '</div>' +
           '<div class="meta"><span class="mono">' + esc(d.device_hash_short) + '</span>' +
-          (d.app_version ? ' · v' + esc(d.app_version) : '') +
-          (d.last_seen_at ? ' · last seen ' + esc(S.relative(d.last_seen_at)) : '') +
-          (d.first_seen_at ? ' · first seen ' + esc(S.fmtDate(d.first_seen_at)) : '') +
-          (disabled ? ' · released ' + esc(S.fmtDate(d.disabled_at)) : '') +
+          (d.app_version ? ' · ' + esc(t('portal.devices.version', { v: d.app_version })) : '') +
+          (d.last_seen_at ? ' · ' + esc(t('portal.devices.last_seen', { rel: S.relative(d.last_seen_at) })) : '') +
+          (d.first_seen_at ? ' · ' + esc(t('portal.devices.first_seen', { date: S.fmtDate(d.first_seen_at) })) : '') +
+          (disabled ? ' · ' + esc(t('portal.devices.released_on', { date: S.fmtDate(d.disabled_at) })) : '') +
           '</div></div>' +
-          (disabled ? '' : '<button class="btn btn-sm" type="button" data-act="release" data-hash="' + esc(d.device_hash_short) + '" data-name="' + esc(d.device_name || '') + '">Release this computer</button>') +
+          (disabled ? '' : '<button class="btn btn-sm" type="button" data-act="release" data-hash="' + esc(d.device_hash_short) + '" data-name="' + esc(d.device_name || '') + '">' + esc(t('portal.devices.release')) + '</button>') +
           '</li>';
       });
       html += '</ul>';
-      html += '<p class="faint small" style="margin-top:10px">Release a computer you no longer use to free its seat. Releasing a computer you still use will ask for the product key again on that machine.</p>';
+      html += '<p class="faint small" style="margin-top:10px">' + esc(t('portal.devices.release_hint')) + '</p>';
     }
     $('#card-devices').innerHTML = html;
   }
@@ -245,16 +386,16 @@
     var hash = btn.dataset.hash;
     var name = btn.dataset.name || hash;
     S.confirmDialog({
-      eyebrow: 'Release computer',
-      title: 'Release "' + name + '"?',
-      body: 'This frees the seat used by that computer. If SERA is still used there, it will stop and ask for the product key again before it can be activated.',
-      confirmLabel: 'Release',
+      eyebrow: t('portal.release.eyebrow'),
+      title: t('portal.release.title', { name: name }),
+      body: t('portal.release.body'),
+      confirmLabel: t('portal.release.confirm'),
       danger: true
     }).then(function (r) {
       if (!r.ok) return;
-      S.setBusy(btn, true, 'Releasing…');
+      S.setBusy(btn, true, t('portal.release.busy'));
       return api('release_seat', { product_key: key, device_hash_short: hash }).then(function (res) {
-        S.toast(res.released === false ? 'That computer was already released.' : 'Computer released. Its seat is free.', res.released === false ? 'warning' : 'success');
+        S.toast(res.released === false ? t('portal.release.already') : t('portal.release.done'), res.released === false ? 'warning' : 'success');
         return lookup(key, null);
       }).catch(function (err) {
         S.toast(S.friendly(err), 'danger');
@@ -270,20 +411,20 @@
     var btn = this;
     var msg = $('#billing-msg');
     S.hideMsg(msg);
-    S.setBusy(btn, true, 'Opening…');
+    S.setBusy(btn, true, t('portal.billing.busy'));
     var returnUrl = location.origin + location.pathname;
     api('billing_portal', { product_key: key, return_url: returnUrl }).then(function (res) {
       var url = String(res.url || '');
       if (!/^https:\/\//i.test(url)) {
-        S.showMsg(msg, 'The billing portal returned an unexpected link. Contact support at ' + SUPPORT + '.', 'danger');
+        S.showMsg(msg, t('portal.billing.bad_link', { email: SUPPORT }), 'danger');
         S.setBusy(btn, false);
         return;
       }
-      S.showMsg(msg, 'Opening the billing portal…');
+      S.showMsg(msg, t('portal.billing.opening'));
       location.assign(url);
     }).catch(function (err) {
       if (err.code === 'manual_billing') {
-        S.showMsg(msg, 'Billing for this subscription is handled manually. Contact support at ' + SUPPORT + '.');
+        S.showMsg(msg, t('portal.billing.manual', { email: SUPPORT }));
       } else {
         S.showMsg(msg, S.friendly(err), 'danger');
       }
@@ -295,6 +436,12 @@
 
   S.bindSettingsLinks(function () {
     if (key) lookup(key, null);
+  });
+
+  /* ---------- language switch: re-render dynamic content ---------- */
+
+  S.onLanguage(function () {
+    if (data && !$('#view-status').classList.contains('hidden')) render();
   });
 
   /* ---------- boot ---------- */

@@ -5,6 +5,7 @@
 
   var DEFAULT_BASE = 'https://oljcnfcvjvpkwcabmsjd.supabase.co';
   var BASE_KEY = 'sera.base';
+  var LANG_KEY = 'sera.lang';
   var TIMEOUT_MS = 15000;
 
   /* ---------- storage (never throws) ---------- */
@@ -18,6 +19,215 @@
       else store.setItem(key, value);
     } catch (e) { /* storage unavailable (private mode etc.) */ }
   }
+
+  /* ---------- i18n ----------
+     Dictionaries: DICT.en / DICT.he. Pages add their own keys with
+     Sera.i18n.extend({en:{...}, he:{...}}). Static markup is marked with
+     data-i18n="key" (textContent), data-i18n-placeholder, data-i18n-title
+     (sets title and aria-label). applyLanguage() re-applies them, sets
+     <html lang dir> and fires "sera:lang" on document so pages can re-render
+     dynamic content. */
+
+  var LANGS = { en: { dir: 'ltr', locale: 'en-US', label: 'EN' }, he: { dir: 'rtl', locale: 'he-IL', label: 'עב' } };
+
+  var DICT = {
+    en: {
+      /* shared: errors */
+      'err.invalid_key': 'This product key was not recognised. Check it and try again.',
+      'err.rate_limited': 'Too many requests. Wait a minute and try again.',
+      'err.invalid_request': 'The server rejected the request as invalid.',
+      'err.server_error': 'The server ran into a problem. Try again in a moment.',
+      'err.unauthorized': 'The admin token was rejected. Check the token and the base URL.',
+      'err.forbidden': 'The admin token was rejected. Check the token and the base URL.',
+      'err.not_found': 'Not found. Check the base URL (the function may not be deployed).',
+      'err.timeout': 'The request timed out after 15 seconds.',
+      'err.network': 'Could not reach the server. Check the base URL and your connection.',
+      'err.bad_response': 'The server returned an unexpected response.',
+      'err.failed': 'Request failed ({code}).',
+      'err.generic': 'Something went wrong. Try again.',
+      /* shared: relative time */
+      'rel.just_now': 'just now',
+      'rel.under_minute': 'in under a minute',
+      'rel.min': '{n} min',
+      'rel.hour': '{n} h',
+      'rel.day': '{n} day',
+      'rel.days': '{n} days',
+      'rel.ago': '{s} ago',
+      'rel.in': 'in {s}',
+      /* shared: status badge */
+      'status.active': 'active',
+      'status.past_due': 'past due',
+      'status.canceled': 'canceled',
+      'status.cancelled': 'cancelled',
+      'status.expired': 'expired',
+      'status.unknown': 'unknown',
+      /* shared: dialogs */
+      'dlg.sure': 'Are you sure?',
+      'dlg.cancel': 'Cancel',
+      'dlg.confirm': 'Confirm',
+      'dlg.server': 'Server',
+      'dlg.base_title': 'API base URL',
+      'dlg.base_body': 'Where the SERA functions are hosted. Stored in this browser only.',
+      'dlg.base_label': 'Base URL',
+      'dlg.base_default': 'Default: {base}',
+      'dlg.use_default': 'Use default',
+      'dlg.save': 'Save',
+      'dlg.server_set': 'Server set to {host}',
+      /* shared: chrome */
+      'common.brand': 'SERA Management',
+      'common.footer': 'SERA Management · not affiliated with NinjaTrader LLC',
+      'common.change_server': 'Change server',
+      'common.server_settings': 'Server settings',
+      'common.support': 'Support',
+      'common.language': 'Language',
+      'common.loading': 'Loading…',
+      'common.close': 'Close',
+      'common.refresh': 'Refresh',
+      'common.copy': 'Copy',
+      'common.copied': 'Copied',
+      'common.copy_failed': 'Copy failed'
+    },
+    he: {
+      'err.invalid_key': 'מפתח המוצר לא זוהה. בדוק אותו ונסה שוב.',
+      'err.rate_limited': 'יותר מדי בקשות. המתן דקה ונסה שוב.',
+      'err.invalid_request': 'השרת דחה את הבקשה כלא תקינה.',
+      'err.server_error': 'השרת נתקל בבעיה. נסה שוב בעוד רגע.',
+      'err.unauthorized': 'טוקן הניהול נדחה. בדוק את הטוקן ואת כתובת השרת.',
+      'err.forbidden': 'טוקן הניהול נדחה. בדוק את הטוקן ואת כתובת השרת.',
+      'err.not_found': 'לא נמצא. בדוק את כתובת השרת (ייתכן שהפונקציה לא פרוסה).',
+      'err.timeout': 'הבקשה לא נענתה תוך 15 שניות.',
+      'err.network': 'אין חיבור לשרת. בדוק את כתובת השרת ואת החיבור לאינטרנט.',
+      'err.bad_response': 'השרת החזיר תשובה לא צפויה.',
+      'err.failed': 'הבקשה נכשלה ({code}).',
+      'err.generic': 'משהו השתבש. נסה שוב.',
+      'rel.just_now': 'עכשיו',
+      'rel.under_minute': 'בעוד פחות מדקה',
+      'rel.min': '{n} דק׳',
+      'rel.hour': '{n} שע׳',
+      'rel.day': 'יום',
+      'rel.days': '{n} ימים',
+      'rel.ago': 'לפני {s}',
+      'rel.in': 'בעוד {s}',
+      'status.active': 'פעיל',
+      'status.past_due': 'בפיגור',
+      'status.canceled': 'בוטל',
+      'status.cancelled': 'בוטל',
+      'status.expired': 'פג תוקף',
+      'status.unknown': 'לא ידוע',
+      'dlg.sure': 'האם אתה בטוח?',
+      'dlg.cancel': 'ביטול',
+      'dlg.confirm': 'אישור',
+      'dlg.server': 'שרת',
+      'dlg.base_title': 'כתובת שרת ה-API',
+      'dlg.base_body': 'היכן מתארחות פונקציות SERA. נשמר בדפדפן זה בלבד.',
+      'dlg.base_label': 'כתובת בסיס',
+      'dlg.base_default': 'ברירת מחדל: {base}',
+      'dlg.use_default': 'ברירת מחדל',
+      'dlg.save': 'שמירה',
+      'dlg.server_set': 'השרת הוגדר ל-{host}',
+      'common.brand': 'SERA Management',
+      'common.footer': 'SERA Management · אינו קשור ל-NinjaTrader LLC',
+      'common.change_server': 'החלפת שרת',
+      'common.server_settings': 'הגדרות שרת',
+      'common.support': 'תמיכה',
+      'common.language': 'שפה',
+      'common.loading': 'טוען…',
+      'common.close': 'סגירה',
+      'common.refresh': 'רענון',
+      'common.copy': 'העתקה',
+      'common.copied': 'הועתק',
+      'common.copy_failed': 'ההעתקה נכשלה'
+    }
+  };
+
+  var lang = 'en';
+
+  function normalizeLang(code) {
+    code = String(code || '').toLowerCase();
+    return code.indexOf('he') === 0 || code.indexOf('iw') === 0 ? 'he' : code.indexOf('en') === 0 ? 'en' : '';
+  }
+  function detectLang() {
+    var stored = normalizeLang(storageGet(localStorage, LANG_KEY));
+    if (stored) return stored;
+    var nav = (navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || '']);
+    for (var i = 0; i < nav.length; i++) {
+      var n = normalizeLang(nav[i]);
+      if (n) return n;
+    }
+    return 'en';
+  }
+  function getLang() { return lang; }
+
+  function extend(dicts) {
+    Object.keys(dicts || {}).forEach(function (code) {
+      if (!DICT[code]) DICT[code] = {};
+      var src = dicts[code] || {};
+      Object.keys(src).forEach(function (k) { DICT[code][k] = src[k]; });
+    });
+  }
+
+  /* t(key, {name: value}) — "{name}" placeholders are substituted. Falls back to English, then the key. */
+  function t(key, params) {
+    var s = DICT[lang] && DICT[lang][key] !== undefined ? DICT[lang][key] : (DICT.en[key] !== undefined ? DICT.en[key] : key);
+    if (params) {
+      s = String(s).replace(/\{(\w+)\}/g, function (m, name) {
+        return params[name] !== undefined && params[name] !== null ? String(params[name]) : m;
+      });
+    }
+    return s;
+  }
+
+  function applyDom(root) {
+    root = root || document;
+    var nodes = root.querySelectorAll('[data-i18n]');
+    var i;
+    for (i = 0; i < nodes.length; i++) nodes[i].textContent = t(nodes[i].getAttribute('data-i18n'));
+    nodes = root.querySelectorAll('[data-i18n-placeholder]');
+    for (i = 0; i < nodes.length; i++) nodes[i].setAttribute('placeholder', t(nodes[i].getAttribute('data-i18n-placeholder')));
+    nodes = root.querySelectorAll('[data-i18n-title]');
+    for (i = 0; i < nodes.length; i++) {
+      var v = t(nodes[i].getAttribute('data-i18n-title'));
+      nodes[i].setAttribute('title', v);
+      nodes[i].setAttribute('aria-label', v);
+    }
+    nodes = root.querySelectorAll('[data-sera-lang]');
+    for (i = 0; i < nodes.length; i++) {
+      var on = nodes[i].getAttribute('data-sera-lang') === lang;
+      nodes[i].classList.toggle('active', on);
+      nodes[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+  }
+
+  function applyLanguage(code, opts) {
+    opts = opts || {};
+    var next = normalizeLang(code) || 'en';
+    var changed = next !== lang;
+    lang = next;
+    var meta = LANGS[lang];
+    var html = document.documentElement;
+    html.setAttribute('lang', lang);
+    html.setAttribute('dir', meta.dir);
+    buildFormatters();
+    applyDom(document);
+    if (opts.persist !== false) storageSet(localStorage, LANG_KEY, lang);
+    if (changed || opts.force) {
+      try { document.dispatchEvent(new CustomEvent('sera:lang', { detail: { lang: lang } })); } catch (e) { /* old browser */ }
+    }
+    return lang;
+  }
+
+  /* Wires [data-sera-lang="en|he"] buttons. */
+  function bindLangToggle() {
+    var nodes = document.querySelectorAll('[data-sera-lang]');
+    for (var i = 0; i < nodes.length; i++) {
+      nodes[i].addEventListener('click', function (e) {
+        e.preventDefault();
+        applyLanguage(this.getAttribute('data-sera-lang'));
+      });
+    }
+  }
+
+  function onLanguage(fn) { document.addEventListener('sera:lang', function (e) { fn(e.detail ? e.detail.lang : lang); }); }
 
   /* ---------- base URL ---------- */
 
@@ -50,26 +260,15 @@
   SeraError.prototype = Object.create(Error.prototype);
   SeraError.prototype.constructor = SeraError;
 
-  var FRIENDLY = {
-    invalid_key: 'This product key was not recognised. Check it and try again.',
-    rate_limited: 'Too many requests. Wait a minute and try again.',
-    invalid_request: 'The server rejected the request as invalid.',
-    server_error: 'The server ran into a problem. Try again in a moment.',
-    unauthorized: 'The admin token was rejected. Check the token and the base URL.',
-    forbidden: 'The admin token was rejected. Check the token and the base URL.',
-    not_found: 'Not found. Check the base URL (the function may not be deployed).',
-    timeout: 'The request timed out after 15 seconds.',
-    network: 'Could not reach the server. Check the base URL and your connection.',
-    bad_response: 'The server returned an unexpected response.'
-  };
+  var FRIENDLY_CODES = ['invalid_key', 'rate_limited', 'invalid_request', 'server_error', 'unauthorized', 'forbidden', 'not_found', 'timeout', 'network', 'bad_response'];
 
   function friendly(err) {
     if (err && err.name === 'SeraError') {
-      if (FRIENDLY[err.code]) return FRIENDLY[err.code];
+      if (FRIENDLY_CODES.indexOf(err.code) >= 0) return t('err.' + err.code);
       if (err.message && err.message !== err.code) return err.message;
-      return 'Request failed (' + err.code + ').';
+      return t('err.failed', { code: err.code });
     }
-    return 'Something went wrong. Try again.';
+    return t('err.generic');
   }
 
   function httpCode(status) {
@@ -132,8 +331,13 @@
     return isNaN(d.getTime()) ? null : d;
   }
 
-  var dtFull = new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-  var dtDay = new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  var dtFull, dtDay;
+  function buildFormatters() {
+    var locale = LANGS[lang].locale;
+    dtFull = new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    dtDay = new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+  buildFormatters();
 
   function fmtDateTime(v) { var d = parseDate(v); return d ? dtFull.format(d) : '—'; }
   function fmtDate(v) { var d = parseDate(v); return d ? dtDay.format(d) : '—'; }
@@ -146,11 +350,11 @@
     var abs = Math.abs(diff);
     var MIN = 60000, HOUR = 3600000, DAY = 86400000;
     var s;
-    if (abs < MIN) return diff <= 0 ? 'just now' : 'in under a minute';
-    if (abs < HOUR) { var m = Math.round(abs / MIN); s = m + ' min'; }
-    else if (abs < DAY) { var h = Math.round(abs / HOUR); s = h + ' h'; }
-    else { var n = Math.round(abs / DAY); s = n + (n === 1 ? ' day' : ' days'); }
-    return diff < 0 ? s + ' ago' : 'in ' + s;
+    if (abs < MIN) return diff <= 0 ? t('rel.just_now') : t('rel.under_minute');
+    if (abs < HOUR) { s = t('rel.min', { n: Math.round(abs / MIN) }); }
+    else if (abs < DAY) { s = t('rel.hour', { n: Math.round(abs / HOUR) }); }
+    else { var n = Math.round(abs / DAY); s = t(n === 1 ? 'rel.day' : 'rel.days', { n: n }); }
+    return diff < 0 ? t('rel.ago', { s: s }) : t('rel.in', { s: s });
   }
 
   /* Date + relative, e.g. "Oct 5, 2026 · in 12 days" (HTML, escaped). */
@@ -165,7 +369,8 @@
   function statusBadge(status) {
     var s = String(status || 'unknown');
     var kind = STATUS_KIND[s] || 'neutral';
-    return '<span class="badge badge-' + kind + '">' + esc(s.replace(/_/g, ' ')) + '</span>';
+    var label = DICT.en['status.' + s] !== undefined ? t('status.' + s) : s.replace(/_/g, ' ');
+    return '<span class="badge badge-' + kind + '">' + esc(label) + '</span>';
   }
 
   function shortHash(h, n) {
@@ -221,7 +426,10 @@
     } else {
       btn.removeAttribute('aria-busy');
       btn.disabled = false;
-      if (btn.dataset.label) btn.textContent = btn.dataset.label;
+      var key = btn.getAttribute('data-i18n');
+      if (key) btn.textContent = t(key);
+      else if (btn.dataset.label) btn.textContent = btn.dataset.label;
+      delete btn.dataset.label;
     }
   }
 
@@ -253,16 +461,16 @@
       var dlg = document.createElement('dialog');
       var html = '<form method="dialog" class="stack-sm">';
       if (opts.eyebrow) html += '<div class="eyebrow">' + esc(opts.eyebrow) + '</div>';
-      html += '<h2>' + esc(opts.title || 'Are you sure?') + '</h2>';
+      html += '<h2>' + esc(opts.title || t('dlg.sure')) + '</h2>';
       if (opts.body) html += '<p class="muted">' + esc(opts.body) + '</p>';
       if (opts.prompt) {
         html += '<div class="field"><label class="label">' + esc(opts.prompt.label || '') +
           '</label><input class="input" name="value" autocomplete="off" placeholder="' + esc(opts.prompt.placeholder || '') + '"></div>';
       }
       html += '<div class="dialog-actions">' +
-        '<button type="button" class="btn" value="cancel" data-cancel>' + esc(opts.cancelLabel || 'Cancel') + '</button>' +
+        '<button type="button" class="btn" value="cancel" data-cancel>' + esc(opts.cancelLabel || t('dlg.cancel')) + '</button>' +
         '<button type="submit" class="btn ' + (opts.danger ? 'btn-danger btn-solid' : 'btn-primary') + '" value="ok">' +
-        esc(opts.confirmLabel || 'Confirm') + '</button></div></form>';
+        esc(opts.confirmLabel || t('dlg.confirm')) + '</button></div></form>';
       dlg.innerHTML = html;
       document.body.appendChild(dlg);
       var form = dlg.querySelector('form');
@@ -289,16 +497,16 @@
     var dlg = document.createElement('dialog');
     dlg.innerHTML =
       '<form method="dialog" class="stack-sm">' +
-      '<div class="eyebrow">Server</div>' +
-      '<h2>API base URL</h2>' +
-      '<p class="muted">Where the SERA functions are hosted. Stored in this browser only.</p>' +
-      '<div class="field"><label class="label" for="sera-base-input">Base URL</label>' +
-      '<input id="sera-base-input" class="input" type="url" autocomplete="off" spellcheck="false" name="base"></div>' +
-      '<div class="hint">Default: ' + esc(DEFAULT_BASE) + '</div>' +
+      '<div class="eyebrow">' + esc(t('dlg.server')) + '</div>' +
+      '<h2>' + esc(t('dlg.base_title')) + '</h2>' +
+      '<p class="muted">' + esc(t('dlg.base_body')) + '</p>' +
+      '<div class="field"><label class="label" for="sera-base-input">' + esc(t('dlg.base_label')) + '</label>' +
+      '<input id="sera-base-input" class="input" type="url" autocomplete="off" spellcheck="false" name="base" dir="ltr"></div>' +
+      '<div class="hint">' + esc(t('dlg.base_default', { base: DEFAULT_BASE })) + '</div>' +
       '<div class="dialog-actions">' +
-      '<button type="button" class="btn" data-reset>Use default</button>' +
-      '<button type="button" class="btn" data-cancel>Cancel</button>' +
-      '<button type="submit" class="btn btn-primary">Save</button>' +
+      '<button type="button" class="btn" data-reset>' + esc(t('dlg.use_default')) + '</button>' +
+      '<button type="button" class="btn" data-cancel>' + esc(t('dlg.cancel')) + '</button>' +
+      '<button type="submit" class="btn btn-primary">' + esc(t('dlg.save')) + '</button>' +
       '</div></form>';
     document.body.appendChild(dlg);
     var input = dlg.querySelector('input[name=base]');
@@ -308,7 +516,7 @@
       e.preventDefault();
       var base = setBase(input.value);
       cleanup();
-      toast('Server set to ' + hostOf(base), 'success');
+      toast(t('dlg.server_set', { host: hostOf(base) }), 'success');
       if (onChange) onChange(base);
     });
     dlg.querySelector('[data-reset]').addEventListener('click', function () { input.value = DEFAULT_BASE; });
@@ -328,9 +536,14 @@
     }
   }
 
+  /* Pick the initial language before first paint (no persist: a detected
+     default is not written until the user chooses). */
+  applyLanguage(detectLang(), { persist: false });
+
   global.Sera = {
     DEFAULT_BASE: DEFAULT_BASE,
     TIMEOUT_MS: TIMEOUT_MS,
+    LANG_KEY: LANG_KEY,
     SeraError: SeraError,
     getBase: getBase,
     setBase: setBase,
@@ -355,6 +568,13 @@
     openBaseDialog: openBaseDialog,
     bindSettingsLinks: bindSettingsLinks,
     storageGet: storageGet,
-    storageSet: storageSet
+    storageSet: storageSet,
+    /* i18n */
+    t: t,
+    getLang: getLang,
+    applyLanguage: applyLanguage,
+    bindLangToggle: bindLangToggle,
+    onLanguage: onLanguage,
+    i18n: { extend: extend, dict: DICT, langs: LANGS, t: t, applyDom: applyDom }
   };
 })(window);
