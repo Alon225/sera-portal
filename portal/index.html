@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="dark light">
+<title>SERA Management · Customer portal</title>
+<link rel="stylesheet" href="../shared.css">
+</head>
+<body>
+<div class="page narrow">
+
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">SERA Management</div>
+      <h1>Customer portal</h1>
+    </div>
+    <div class="row">
+      <button id="btn-forget" class="btn btn-sm hidden" type="button">Forget key</button>
+      <button class="btn btn-sm btn-icon" type="button" data-sera-settings title="Server settings" aria-label="Server settings"><span class="gear">&#9881;</span></button>
+    </div>
+  </header>
+
+  <!-- Product key entry -->
+  <section id="view-key" class="card">
+    <div class="eyebrow">Product key</div>
+    <h2>Look up your subscription</h2>
+    <p class="muted" style="margin:6px 0 14px">Enter the product key you received after purchase to see your subscription, manage your computers and billing.</p>
+    <form id="form-key" class="stack-sm">
+      <div class="field">
+        <label class="label" for="in-key">Product key</label>
+        <input id="in-key" class="input mono" type="text" placeholder="SERA-XXXX-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" required>
+        <div class="hint">Any case, with or without dashes.</div>
+      </div>
+      <div id="key-msg" class="msg msg-danger hidden" role="alert"></div>
+      <div class="row">
+        <button id="btn-lookup" class="btn btn-primary" type="submit">Look up</button>
+      </div>
+    </form>
+    <p class="faint small" style="margin-top:14px">The key is kept only for this browser tab and is forgotten when the tab closes.</p>
+  </section>
+
+  <!-- Status view -->
+  <main id="view-status" class="stack hidden">
+    <section class="card" id="card-sub"></section>
+    <section class="card" id="card-devices"></section>
+
+    <section class="card" id="card-billing">
+      <div class="eyebrow">Billing</div>
+      <div class="row between">
+        <p class="muted grow">Update your payment method, download invoices or cancel the subscription.</p>
+        <button id="btn-billing" class="btn btn-primary" type="button">Manage billing</button>
+      </div>
+      <div id="billing-msg" class="msg hidden" style="margin-top:12px"></div>
+    </section>
+
+    <section class="card" id="card-download">
+      <div class="eyebrow">Install</div>
+      <div class="row between" style="margin-bottom:10px">
+        <h2>Download SERA</h2>
+        <a class="btn" href="https://github.com/Alon225/sera-releases/releases/latest" target="_blank" rel="noopener noreferrer">Download SERA</a>
+      </div>
+      <ol class="steps muted">
+        <li>Run <code>SERASetup.exe</code>.</li>
+        <li>Close NinjaTrader.</li>
+        <li>Run <code>GuardianBridgeSetup.exe</code>.</li>
+        <li>Start NinjaTrader, then start SERA.</li>
+        <li>Enter your product key when asked.</li>
+      </ol>
+      <p class="faint small" style="margin-top:12px">Need help? Email <a href="mailto:alonjbtw@gmail.com">alonjbtw@gmail.com</a>.</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>SERA Management · not affiliated with NinjaTrader LLC</span>
+    <span class="row">
+      <a href="mailto:alonjbtw@gmail.com">Support</a>
+      <span>·</span>
+      <a href="#" data-sera-settings>Change server</a>
+    </span>
+  </footer>
+</div>
+
+<script src="../shared.js"></script>
+<script>
+(function () {
+  'use strict';
+  var S = window.Sera;
+  var esc = S.esc;
+  var SESSION_KEY = 'sera.portal.key';
+  var SUPPORT = 'alonjbtw@gmail.com';
+  var $ = function (sel, root) { return (root || document).querySelector(sel); };
+
+  var key = S.storageGet(sessionStorage, SESSION_KEY) || '';
+  var data = null;
+
+  var inKey = $('#in-key');
+  var keyMsg = $('#key-msg');
+
+  function api(action, params) {
+    var body = { action: action };
+    Object.keys(params || {}).forEach(function (k) { body[k] = params[k]; });
+    return S.call('sera-customer', body);
+  }
+
+  /* ---------- views ---------- */
+
+  function showKeyView() {
+    $('#view-key').classList.remove('hidden');
+    $('#view-status').classList.add('hidden');
+    $('#btn-forget').classList.add('hidden');
+  }
+  function showStatusView() {
+    $('#view-key').classList.add('hidden');
+    $('#view-status').classList.remove('hidden');
+    $('#btn-forget').classList.remove('hidden');
+  }
+
+  function forget() {
+    S.storageSet(sessionStorage, SESSION_KEY, null);
+    key = '';
+    data = null;
+    inKey.value = '';
+    S.hideMsg(keyMsg);
+    S.hideMsg($('#billing-msg'));
+    showKeyView();
+    inKey.focus();
+  }
+  $('#btn-forget').addEventListener('click', forget);
+
+  /* ---------- lookup ---------- */
+
+  inKey.addEventListener('blur', function () {
+    var n = S.normalizeProductKey(inKey.value);
+    if (n.valid) inKey.value = n.formatted;
+  });
+
+  $('#form-key').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    S.hideMsg(keyMsg);
+    var n = S.normalizeProductKey(inKey.value);
+    if (!n.valid) {
+      S.showMsg(keyMsg, 'A product key looks like SERA-XXXX-XXXX-XXXX-XXXX (16 letters or digits after SERA). Check for missing characters.', 'danger');
+      return;
+    }
+    inKey.value = n.formatted;
+    lookup(n.formatted, $('#btn-lookup'));
+  });
+
+  function lookup(k, btn) {
+    S.setBusy(btn, true, 'Looking up…');
+    return api('status', { product_key: k }).then(function (res) {
+      data = res;
+      key = k;
+      S.storageSet(sessionStorage, SESSION_KEY, k);
+      render();
+      showStatusView();
+    }).catch(function (err) {
+      if (err.code === 'invalid_key') S.storageSet(sessionStorage, SESSION_KEY, null);
+      showKeyView();
+      S.showMsg(keyMsg, S.friendly(err), 'danger');
+    }).then(function () { S.setBusy(btn, false); });
+  }
+
+  /* ---------- render ---------- */
+
+  function kv(label, valueHtml) {
+    return '<div><div class="k">' + esc(label) + '</div><div class="v">' + (valueHtml || '<span class="faint">—</span>') + '</div></div>';
+  }
+
+  function periodLabel(e) {
+    var end = S.parseDate(e.current_period_end);
+    var future = end && end.getTime() > Date.now();
+    if (e.status === 'active') return e.billing === 'stripe' ? 'Renews on' : 'Valid until';
+    if (e.status === 'past_due') return 'Period end';
+    return future ? 'Access ends' : 'Ended on';
+  }
+
+  function statusNote(e) {
+    var end = S.parseDate(e.current_period_end);
+    var future = end && end.getTime() > Date.now();
+    if (e.status === 'past_due') return { kind: 'warning', text: 'The last payment failed or is overdue. Use Manage billing to update the payment method.' };
+    if (e.status === 'canceled') return { kind: '', text: future ? 'This subscription is canceled. Access continues until the date above.' : 'This subscription is canceled.' };
+    if (e.status === 'expired') return { kind: 'danger', text: 'This subscription has expired. Contact support to renew.' };
+    return null;
+  }
+
+  function render() {
+    var e = data.entitlement || {};
+    var devices = Array.isArray(data.devices) ? data.devices : [];
+    var note = statusNote(e);
+    var billing = e.billing === 'stripe' ? 'Card (Stripe)' : e.billing === 'manual' ? 'Manual' : (e.billing || '');
+
+    var html = '<div class="row between top" style="margin-bottom:14px">' +
+      '<div><div class="eyebrow">Subscription</div>' +
+      '<h2 class="row"><span>' + esc(e.plan || 'SERA') + '</span>' + S.statusBadge(e.status) + '</h2></div>' +
+      '<button class="btn btn-sm" type="button" data-act="refresh">Refresh</button></div>';
+    html += '<div class="kv">' +
+      kv('Plan', esc(e.plan)) +
+      kv(periodLabel(e), S.dateWithRelative(e.current_period_end)) +
+      kv('Seats used', (e.active_devices === undefined ? '—' : esc(e.active_devices)) + ' / ' + (e.max_devices === undefined ? '—' : esc(e.max_devices))) +
+      kv('Billing', esc(billing)) +
+      kv('Account', esc(e.customer_email_masked)) +
+      kv('Key', data.key_last4 ? '<span class="mono">SERA-••••-••••-••••-' + esc(data.key_last4) + '</span>' : '') +
+      '</div>';
+    if (note) html += '<div class="msg' + (note.kind ? ' msg-' + note.kind : '') + '" style="margin-top:14px">' + esc(note.text) + '</div>';
+    $('#card-sub').innerHTML = html;
+
+    var active = devices.filter(function (d) { return !d.disabled_at; }).length;
+    html = '<div class="section-head"><div><div class="eyebrow">Computers</div><h2>Activated computers</h2></div>' +
+      '<span class="faint small">' + active + ' of ' + (e.max_devices === undefined ? '?' : esc(e.max_devices)) + ' seats in use</span></div>';
+    if (!devices.length) {
+      html += '<p class="muted">No computer has activated this key yet. Install SERA and enter the product key to activate.</p>';
+    } else {
+      html += '<ul class="list">';
+      devices.forEach(function (d) {
+        var disabled = !!d.disabled_at;
+        html += '<li><div class="grow">' +
+          '<div class="row" style="gap:8px"><span class="strong">' + esc(d.device_name || 'Unnamed computer') + '</span>' +
+          (disabled ? '<span class="badge badge-neutral">released</span>' : '<span class="badge badge-success">active</span>') + '</div>' +
+          '<div class="meta"><span class="mono">' + esc(d.device_hash_short) + '</span>' +
+          (d.app_version ? ' · v' + esc(d.app_version) : '') +
+          (d.last_seen_at ? ' · last seen ' + esc(S.relative(d.last_seen_at)) : '') +
+          (d.first_seen_at ? ' · first seen ' + esc(S.fmtDate(d.first_seen_at)) : '') +
+          (disabled ? ' · released ' + esc(S.fmtDate(d.disabled_at)) : '') +
+          '</div></div>' +
+          (disabled ? '' : '<button class="btn btn-sm" type="button" data-act="release" data-hash="' + esc(d.device_hash_short) + '" data-name="' + esc(d.device_name || '') + '">Release this computer</button>') +
+          '</li>';
+      });
+      html += '</ul>';
+      html += '<p class="faint small" style="margin-top:10px">Release a computer you no longer use to free its seat. Releasing a computer you still use will ask for the product key again on that machine.</p>';
+    }
+    $('#card-devices').innerHTML = html;
+  }
+
+  $('#card-sub').addEventListener('click', function (ev) {
+    var btn = ev.target.closest('[data-act="refresh"]');
+    if (btn && key) lookup(key, btn);
+  });
+
+  $('#card-devices').addEventListener('click', function (ev) {
+    var btn = ev.target.closest('[data-act="release"]');
+    if (!btn || !key) return;
+    var hash = btn.dataset.hash;
+    var name = btn.dataset.name || hash;
+    S.confirmDialog({
+      eyebrow: 'Release computer',
+      title: 'Release "' + name + '"?',
+      body: 'This frees the seat used by that computer. If SERA is still used there, it will stop and ask for the product key again before it can be activated.',
+      confirmLabel: 'Release',
+      danger: true
+    }).then(function (r) {
+      if (!r.ok) return;
+      S.setBusy(btn, true, 'Releasing…');
+      return api('release_seat', { product_key: key, device_hash_short: hash }).then(function (res) {
+        S.toast(res.released === false ? 'That computer was already released.' : 'Computer released. Its seat is free.', res.released === false ? 'warning' : 'success');
+        return lookup(key, null);
+      }).catch(function (err) {
+        S.toast(S.friendly(err), 'danger');
+        S.setBusy(btn, false);
+      });
+    });
+  });
+
+  /* ---------- billing ---------- */
+
+  $('#btn-billing').addEventListener('click', function () {
+    if (!key) return;
+    var btn = this;
+    var msg = $('#billing-msg');
+    S.hideMsg(msg);
+    S.setBusy(btn, true, 'Opening…');
+    var returnUrl = location.origin + location.pathname;
+    api('billing_portal', { product_key: key, return_url: returnUrl }).then(function (res) {
+      var url = String(res.url || '');
+      if (!/^https:\/\//i.test(url)) {
+        S.showMsg(msg, 'The billing portal returned an unexpected link. Contact support at ' + SUPPORT + '.', 'danger');
+        S.setBusy(btn, false);
+        return;
+      }
+      S.showMsg(msg, 'Opening the billing portal…');
+      location.assign(url);
+    }).catch(function (err) {
+      if (err.code === 'manual_billing') {
+        S.showMsg(msg, 'Billing for this subscription is handled manually. Contact support at ' + SUPPORT + '.');
+      } else {
+        S.showMsg(msg, S.friendly(err), 'danger');
+      }
+      S.setBusy(btn, false);
+    });
+  });
+
+  /* ---------- settings ---------- */
+
+  S.bindSettingsLinks(function () {
+    if (key) lookup(key, null);
+  });
+
+  /* ---------- boot ---------- */
+
+  if (key) {
+    inKey.value = key;
+    lookup(key, $('#btn-lookup'));
+  } else {
+    showKeyView();
+  }
+})();
+</script>
+</body>
+</html>

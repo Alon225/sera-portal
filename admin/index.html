@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="dark light">
+<title>SERA Management · Admin</title>
+<link rel="stylesheet" href="../shared.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">SERA Management</div>
+      <h1>Admin</h1>
+    </div>
+    <div class="row">
+      <span id="conn" class="conn-pill" aria-live="polite">Not connected</span>
+      <button id="btn-disconnect" class="btn btn-sm hidden" type="button">Disconnect</button>
+      <button class="btn btn-sm btn-icon" type="button" data-sera-settings title="Server settings" aria-label="Server settings"><span class="gear">&#9881;</span></button>
+    </div>
+  </header>
+
+  <!-- Connect form (shown until a token is stored) -->
+  <section id="view-connect" class="card">
+    <div class="eyebrow">Connect</div>
+    <h2>Admin token</h2>
+    <p class="muted" style="margin:6px 0 14px">The token is kept in this browser only (localStorage) and sent as a request header. It is never placed in the URL.</p>
+    <form id="form-connect" class="stack-sm">
+      <div class="field">
+        <label class="label" for="in-base">API base URL</label>
+        <input id="in-base" class="input" type="url" autocomplete="off" spellcheck="false" required>
+      </div>
+      <div class="field">
+        <label class="label" for="in-token">Admin token</label>
+        <input id="in-token" class="input" type="password" autocomplete="off" required>
+      </div>
+      <div id="connect-msg" class="msg msg-danger hidden" role="alert"></div>
+      <div class="row">
+        <button id="btn-connect" class="btn btn-primary" type="submit">Connect</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Main view -->
+  <main id="view-main" class="stack hidden">
+    <section class="card">
+      <div class="row between" style="margin-bottom:12px">
+        <div class="row grow">
+          <input id="in-search" class="input grow" type="search" placeholder="Search email, plan, note…" autocomplete="off" aria-label="Search customers">
+          <button id="btn-refresh" class="btn" type="button">Refresh</button>
+        </div>
+        <button id="btn-new" class="btn btn-primary" type="button">New customer</button>
+      </div>
+      <div id="list-msg" class="msg hidden"></div>
+      <div class="table-wrap">
+        <table id="tbl-customers">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Plan</th>
+              <th>Status</th>
+              <th>Period end</th>
+              <th class="num">Devices</th>
+              <th>Note</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="list-empty" class="faint hidden" style="padding:12px 0 4px">No customers found.</div>
+    </section>
+
+    <section id="detail" class="card hidden" aria-live="polite"></section>
+  </main>
+
+  <footer class="footer">
+    <span>SERA Management · not affiliated with NinjaTrader LLC</span>
+    <a href="#" data-sera-settings>Change server</a>
+  </footer>
+</div>
+
+<!-- New customer -->
+<dialog id="dlg-new">
+  <form id="form-new" class="stack-sm">
+    <div class="eyebrow">New customer</div>
+    <h2>Create entitlement</h2>
+    <div class="field">
+      <label class="label" for="new-email">Customer email</label>
+      <input id="new-email" class="input" type="email" required autocomplete="off" spellcheck="false">
+    </div>
+    <div class="fields-2">
+      <div class="field">
+        <label class="label" for="new-months">Months (1–36)</label>
+        <input id="new-months" class="input" type="number" min="1" max="36" step="1" value="12" required>
+      </div>
+      <div class="field">
+        <label class="label" for="new-devices">Max devices (1–20)</label>
+        <input id="new-devices" class="input" type="number" min="1" max="20" step="1" value="2" required>
+      </div>
+    </div>
+    <div class="field">
+      <label class="label" for="new-note">Note (optional)</label>
+      <input id="new-note" class="input" type="text" autocomplete="off" maxlength="500">
+    </div>
+    <div id="new-msg" class="msg msg-danger hidden" role="alert"></div>
+    <div class="dialog-actions">
+      <button type="button" class="btn" id="new-cancel">Cancel</button>
+      <button type="submit" class="btn btn-primary" id="new-submit">Create</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- One-time product key -->
+<dialog id="dlg-key">
+  <div class="stack-sm">
+    <div class="eyebrow">Product key</div>
+    <h2 id="key-title">Product key</h2>
+    <p class="muted" id="key-sub"></p>
+    <div class="key-big" id="key-value"></div>
+    <div class="msg msg-warning">This key is shown once. It will not be shown again — copy it now and send it to the customer.</div>
+    <div class="dialog-actions">
+      <button type="button" class="btn" id="key-copy">Copy</button>
+      <button type="button" class="btn btn-primary" id="key-close">I have saved the key</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="../shared.js"></script>
+<script>
+(function () {
+  'use strict';
+  var S = window.Sera;
+  var esc = S.esc;
+  var ADMIN_KEY = 'sera.admin';
+  var $ = function (sel, root) { return (root || document).querySelector(sel); };
+
+  var token = loadToken();
+  var entitlements = [];
+  var selectedId = null;
+  var detail = null; // last `get` response
+  var searchTimer = null;
+
+  var elConn = $('#conn');
+  var elDetail = $('#detail');
+  var tbody = $('#tbl-customers tbody');
+
+  /* ---------- token storage ---------- */
+
+  function loadToken() {
+    try {
+      var raw = localStorage.getItem(ADMIN_KEY);
+      if (!raw) return '';
+      var o = JSON.parse(raw);
+      return o && typeof o.token === 'string' ? o.token : '';
+    } catch (e) { return ''; }
+  }
+  function saveToken(t) {
+    S.storageSet(localStorage, ADMIN_KEY, t ? JSON.stringify({ token: t, saved_at: new Date().toISOString() }) : null);
+  }
+
+  /* ---------- API ---------- */
+
+  function api(action, params) {
+    var body = { action: action };
+    Object.keys(params || {}).forEach(function (k) { body[k] = params[k]; });
+    return S.call('sera-admin', body, { headers: { 'x-sera-admin-token': token } });
+  }
+
+  /* ---------- views ---------- */
+
+  function setConn(state, text) {
+    elConn.className = 'conn-pill' + (state ? ' ' + state : '');
+    elConn.textContent = text;
+  }
+  function showConnect() {
+    $('#view-connect').classList.remove('hidden');
+    $('#view-main').classList.add('hidden');
+    $('#btn-disconnect').classList.add('hidden');
+    $('#in-base').value = S.getBase();
+    setConn('', 'Not connected');
+  }
+  function showMain() {
+    $('#view-connect').classList.add('hidden');
+    $('#view-main').classList.remove('hidden');
+    $('#btn-disconnect').classList.remove('hidden');
+  }
+
+  /* ---------- customer list ---------- */
+
+  function loadList(query) {
+    var msg = $('#list-msg');
+    S.hideMsg(msg);
+    return api('list', query ? { query: query } : {}).then(function (res) {
+      entitlements = Array.isArray(res.entitlements) ? res.entitlements : [];
+      renderList();
+      return res;
+    });
+  }
+
+  function num(v) { return v === null || v === undefined ? '—' : esc(v); }
+
+  function renderList() {
+    tbody.innerHTML = entitlements.map(function (e) {
+      return '<tr class="row-click' + (e.id === selectedId ? ' selected' : '') + '" data-id="' + esc(e.id) + '" tabindex="0">' +
+        '<td class="strong break">' + esc(e.customer_email) + '</td>' +
+        '<td class="nowrap">' + esc(e.plan || '—') + '</td>' +
+        '<td>' + S.statusBadge(e.status) + '</td>' +
+        '<td class="nowrap">' + S.dateWithRelative(e.current_period_end) + '</td>' +
+        '<td class="num">' + num(e.active_devices) + ' / ' + num(e.max_devices) + '</td>' +
+        '<td class="muted"><div class="ellipsis" title="' + esc(e.note || '') + '">' + esc(e.note || '') + '</div></td>' +
+        '</tr>';
+    }).join('');
+    $('#list-empty').classList.toggle('hidden', entitlements.length > 0);
+  }
+
+  tbody.addEventListener('click', function (e) {
+    var tr = e.target.closest('tr[data-id]');
+    if (tr) openDetail(tr.dataset.id);
+  });
+  tbody.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    var tr = e.target.closest('tr[data-id]');
+    if (tr) { e.preventDefault(); openDetail(tr.dataset.id); }
+  });
+
+  function refreshList() {
+    var btn = $('#btn-refresh');
+    S.setBusy(btn, true, 'Loading…');
+    return loadList($('#in-search').value.trim()).catch(function (err) {
+      S.showMsg($('#list-msg'), S.friendly(err), 'danger');
+      if (err.code === 'unauthorized') setConn('fail', 'Token rejected');
+    }).then(function () { S.setBusy(btn, false); });
+  }
+
+  $('#btn-refresh').addEventListener('click', refreshList);
+  $('#in-search').addEventListener('input', function () {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(refreshList, 350);
+  });
+  $('#in-search').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); clearTimeout(searchTimer); refreshList(); }
+  });
+
+  /* ---------- detail panel ---------- */
+
+  function openDetail(id, opts) {
+    opts = opts || {};
+    selectedId = id;
+    renderList();
+    elDetail.classList.remove('hidden');
+    if (!detail || detail.entitlement.id !== id) elDetail.innerHTML = '<div class="faint">Loading…</div>';
+    return api('get', { entitlement_id: id }).then(function (res) {
+      detail = res;
+      renderDetail();
+      if (!opts.noScroll) elDetail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }).catch(function (err) {
+      elDetail.innerHTML = '<div class="row between"><div class="msg msg-danger grow">' + esc(S.friendly(err)) +
+        '</div><button class="btn btn-sm" data-act="close" type="button">Close</button></div>';
+    });
+  }
+
+  function closeDetail() {
+    selectedId = null;
+    detail = null;
+    elDetail.classList.add('hidden');
+    elDetail.innerHTML = '';
+    renderList();
+  }
+
+  function kv(label, valueHtml) {
+    return '<div><div class="k">' + esc(label) + '</div><div class="v">' + (valueHtml || '<span class="faint">—</span>') + '</div></div>';
+  }
+  function detailsText(d) {
+    if (d === null || d === undefined || d === '') return '';
+    if (typeof d === 'string') return d;
+    try { return JSON.stringify(d); } catch (e) { return String(d); }
+  }
+
+  function renderDetail() {
+    var e = detail.entitlement || {};
+    var devices = Array.isArray(detail.devices) ? detail.devices : [];
+    var keys = Array.isArray(detail.product_keys) ? detail.product_keys : [];
+    var leases = Array.isArray(detail.leases) ? detail.leases : [];
+    var audit = (Array.isArray(detail.audit) ? detail.audit.slice() : []).sort(function (a, b) {
+      return (S.parseDate(b.at) || 0) - (S.parseDate(a.at) || 0);
+    });
+    var billing = e.stripe_subscription_id ? 'Stripe' : 'Manual';
+
+    var html = '';
+    html += '<div class="row between top" style="margin-bottom:14px">' +
+      '<div><div class="eyebrow">Customer</div>' +
+      '<h2 class="row"><span class="break">' + esc(e.customer_email) + '</span>' + S.statusBadge(e.status) + '</h2>' +
+      '<div class="mono faint break">' + esc(e.id) + '</div></div>' +
+      '<div class="row"><button class="btn btn-sm" data-act="reload" type="button">Reload</button>' +
+      '<button class="btn btn-sm" data-act="close" type="button">Close</button></div></div>';
+
+    html += '<div class="kv">' +
+      kv('Plan', esc(e.plan)) +
+      kv('Period end', S.dateWithRelative(e.current_period_end)) +
+      kv('Devices', num(e.active_devices) + ' active / ' + num(e.max_devices) + ' max' +
+        (e.total_devices !== undefined && e.total_devices !== null ? ' <span class="faint">(' + esc(e.total_devices) + ' total)</span>' : '')) +
+      kv('Billing', esc(billing)) +
+      kv('Stripe customer', e.stripe_customer_id ? '<span class="mono">' + esc(e.stripe_customer_id) + '</span>' : '') +
+      kv('Stripe subscription', e.stripe_subscription_id ? '<span class="mono">' + esc(e.stripe_subscription_id) + '</span>' : '') +
+      kv('Created', e.created_at ? esc(S.fmtDateTime(e.created_at)) : '') +
+      kv('Updated', e.updated_at ? esc(S.fmtDateTime(e.updated_at)) : '') +
+      kv('Note', e.note ? esc(e.note) : '') +
+      '</div>';
+
+    html += '<div class="card-inset subsection">' +
+      '<div class="eyebrow">Actions</div>' +
+      '<div class="row">' +
+      '<span class="row" style="gap:6px"><label for="in-extend" class="muted">Extend by</label>' +
+      '<input id="in-extend" class="input input-xs" type="number" min="1" max="36" step="1" value="1" aria-label="Months to extend">' +
+      '<span class="muted">months</span>' +
+      '<button class="btn btn-sm" data-act="extend" type="button">Extend</button></span>' +
+      '<span class="faint">|</span>' +
+      '<button class="btn btn-sm" data-act="reissue" type="button">Reissue key</button>' +
+      '<button class="btn btn-sm btn-danger" data-act="revoke" type="button">Revoke</button>' +
+      '</div></div>';
+
+    /* devices */
+    html += '<div class="subsection"><div class="section-head"><h3>Devices</h3><span class="faint small">' + devices.length + '</span></div>';
+    if (!devices.length) {
+      html += '<div class="faint">No devices have activated this entitlement.</div>';
+    } else {
+      html += '<div class="table-wrap"><table class="compact"><thead><tr>' +
+        '<th>Name</th><th>Hash</th><th>Version</th><th>First seen</th><th>Last seen</th><th>State</th><th></th></tr></thead><tbody>';
+      devices.forEach(function (d) {
+        var disabled = !!d.disabled_at;
+        html += '<tr>' +
+          '<td class="break">' + esc(d.device_name || '—') + '</td>' +
+          '<td class="mono nowrap" title="' + esc(d.device_hash) + '">' + esc(S.shortHash(d.device_hash, 12)) + '</td>' +
+          '<td class="nowrap">' + esc(d.app_version || '—') + '</td>' +
+          '<td class="nowrap" title="' + esc(S.fmtDateTime(d.first_seen_at)) + '">' + esc(S.fmtDate(d.first_seen_at)) + '</td>' +
+          '<td class="nowrap" title="' + esc(S.fmtDateTime(d.last_seen_at)) + '">' + esc(S.relative(d.last_seen_at) || '—') + '</td>' +
+          '<td>' + (disabled
+            ? '<span class="badge badge-neutral" title="' + esc(S.fmtDateTime(d.disabled_at)) + '">released</span>'
+            : '<span class="badge badge-success">active</span>') + '</td>' +
+          '<td class="num">' + (disabled ? '' :
+            '<button class="btn btn-sm btn-danger" type="button" data-act="release" data-hash="' + esc(d.device_hash) + '">Release seat</button>') + '</td>' +
+          '</tr>';
+      });
+      html += '</tbody></table></div>';
+    }
+    html += '</div>';
+
+    /* product keys */
+    html += '<div class="subsection"><div class="section-head"><h3>Product keys</h3><span class="faint small">' + keys.length + '</span></div>';
+    if (!keys.length) {
+      html += '<div class="faint">No product keys.</div>';
+    } else {
+      html += '<div class="table-wrap"><table class="compact"><thead><tr><th>Key id</th><th>Created</th><th>Redeemed</th><th>Revoked</th><th>State</th></tr></thead><tbody>';
+      keys.forEach(function (k) {
+        var state = k.revoked_at ? '<span class="badge badge-danger">revoked</span>'
+          : k.redeemed_at ? '<span class="badge badge-success">redeemed</span>'
+          : '<span class="badge badge-warning">unused</span>';
+        html += '<tr>' +
+          '<td class="mono nowrap" title="' + esc(k.id) + '">' + esc(S.shortHash(k.id, 8)) + '</td>' +
+          '<td class="nowrap">' + esc(S.fmtDateTime(k.created_at)) + '</td>' +
+          '<td class="nowrap">' + esc(S.fmtDateTime(k.redeemed_at)) + '</td>' +
+          '<td class="nowrap">' + esc(S.fmtDateTime(k.revoked_at)) + '</td>' +
+          '<td>' + state + '</td></tr>';
+      });
+      html += '</tbody></table></div>';
+    }
+    html += '</div>';
+
+    /* leases */
+    html += '<div class="subsection"><div class="section-head"><h3>Leases</h3><span class="faint small">' + leases.length + '</span></div>';
+    if (!leases.length) {
+      html += '<div class="faint">No leases.</div>';
+    } else {
+      html += '<div class="table-wrap"><table class="compact"><thead><tr><th>Device</th><th>Issued</th><th>Not before</th><th>Expires</th><th>Key</th></tr></thead><tbody>';
+      leases.forEach(function (l) {
+        var expired = S.parseDate(l.expires_at) && S.parseDate(l.expires_at) < new Date();
+        html += '<tr>' +
+          '<td class="mono nowrap" title="' + esc(l.device_hash) + '">' + esc(S.shortHash(l.device_hash, 12)) + '</td>' +
+          '<td class="nowrap">' + esc(S.fmtDateTime(l.issued_at)) + '</td>' +
+          '<td class="nowrap">' + esc(S.fmtDateTime(l.not_before)) + '</td>' +
+          '<td class="nowrap' + (expired ? ' faint' : '') + '" title="' + esc(S.fmtDateTime(l.expires_at)) + '">' +
+            esc(S.fmtDate(l.expires_at)) + ' <span class="faint">· ' + esc(S.relative(l.expires_at)) + '</span></td>' +
+          '<td class="mono nowrap" title="' + esc(l.key_id) + '">' + esc(S.shortHash(l.key_id, 8)) + '</td></tr>';
+      });
+      html += '</tbody></table></div>';
+    }
+    html += '</div>';
+
+    /* audit */
+    html += '<div class="subsection"><div class="section-head"><h3>Recent audit</h3><span class="faint small">newest first</span></div>';
+    if (!audit.length) {
+      html += '<div class="faint">No audit entries.</div>';
+    } else {
+      html += '<ul class="list">';
+      audit.forEach(function (a) {
+        html += '<li><div class="grow">' +
+          '<div><span class="strong">' + esc(a.action) + '</span>' +
+          (a.actor ? ' <span class="muted">by ' + esc(a.actor) + '</span>' : '') +
+          (a.device_hash ? ' <span class="mono faint" title="' + esc(a.device_hash) + '">' + esc(S.shortHash(a.device_hash, 12)) + '</span>' : '') +
+          '</div>' +
+          (detailsText(a.details) ? '<div class="meta break">' + esc(detailsText(a.details)) + '</div>' : '') +
+          '</div><div class="meta nowrap" title="' + esc(S.fmtDateTime(a.at)) + '">' + esc(S.fmtDateTime(a.at)) + ' <span class="faint">· ' + esc(S.relative(a.at)) + '</span></div></li>';
+      });
+      html += '</ul>';
+    }
+    html += '</div>';
+
+    elDetail.innerHTML = html;
+  }
+
+  elDetail.addEventListener('click', function (ev) {
+    var btn = ev.target.closest('[data-act]');
+    if (!btn) return;
+    var act = btn.dataset.act;
+    if (act === 'close') return closeDetail();
+    if (!detail) return;
+    var id = detail.entitlement.id;
+    if (act === 'reload') return openDetail(id, { noScroll: true });
+    if (act === 'extend') return doExtend(btn, id);
+    if (act === 'reissue') return doReissue(btn, id);
+    if (act === 'revoke') return doRevoke(btn, id);
+    if (act === 'release') return doRelease(btn, id, btn.dataset.hash);
+  });
+
+  function afterChange(id) {
+    return Promise.all([
+      loadList($('#in-search').value.trim()).catch(function () { /* list error already visible */ }),
+      openDetail(id, { noScroll: true })
+    ]);
+  }
+
+  function doExtend(btn, id) {
+    var months = parseInt($('#in-extend').value, 10);
+    if (!(months >= 1 && months <= 36)) { S.toast('Enter between 1 and 36 months.', 'warning'); return; }
+    S.setBusy(btn, true, 'Extending…');
+    api('extend', { entitlement_id: id, months: months }).then(function (res) {
+      var end = res.entitlement && res.entitlement.current_period_end;
+      S.toast('Extended by ' + months + ' month' + (months === 1 ? '' : 's') + (end ? ' · new period end ' + S.fmtDate(end) : '') + '.', 'success');
+      return afterChange(id);
+    }).catch(function (err) { S.toast(S.friendly(err), 'danger'); })
+      .then(function () { S.setBusy(btn, false); });
+  }
+
+  function doReissue(btn, id) {
+    S.confirmDialog({
+      eyebrow: 'Reissue key',
+      title: 'Generate a new product key?',
+      body: 'A new product key will be created for ' + detail.entitlement.customer_email +
+        '. The previous key will no longer be valid for new activations, and the customer will need the new key.',
+      confirmLabel: 'Reissue key'
+    }).then(function (r) {
+      if (!r.ok) return;
+      S.setBusy(btn, true, 'Working…');
+      return api('reissue_key', { entitlement_id: id }).then(function (res) {
+        showKey(res.product_key, 'New product key for ' + detail.entitlement.customer_email);
+        return afterChange(id);
+      }).catch(function (err) { S.toast(S.friendly(err), 'danger'); })
+        .then(function () { S.setBusy(btn, false); });
+    });
+  }
+
+  function doRevoke(btn, id) {
+    S.confirmDialog({
+      eyebrow: 'Revoke',
+      title: 'Revoke this entitlement?',
+      body: 'Access for ' + detail.entitlement.customer_email + ' will be revoked. Its devices will stop validating. This is recorded in the audit log.',
+      confirmLabel: 'Revoke',
+      danger: true,
+      prompt: { label: 'Reason (optional)', placeholder: 'e.g. refund, chargeback' }
+    }).then(function (r) {
+      if (!r.ok) return;
+      S.setBusy(btn, true, 'Revoking…');
+      var params = { entitlement_id: id };
+      if (r.value) params.reason = r.value;
+      return api('revoke', params).then(function () {
+        S.toast('Entitlement revoked.', 'success');
+        return afterChange(id);
+      }).catch(function (err) { S.toast(S.friendly(err), 'danger'); })
+        .then(function () { S.setBusy(btn, false); });
+    });
+  }
+
+  function doRelease(btn, id, hash) {
+    S.confirmDialog({
+      eyebrow: 'Release seat',
+      title: 'Release this device seat?',
+      body: 'Device ' + S.shortHash(hash, 12) + ' will be released and its seat freed. That computer will need to enter the product key again to activate.',
+      confirmLabel: 'Release seat',
+      danger: true
+    }).then(function (r) {
+      if (!r.ok) return;
+      S.setBusy(btn, true, 'Releasing…');
+      return api('release_seat', { entitlement_id: id, device_hash: hash }).then(function (res) {
+        S.toast(res.released === false ? 'Nothing to release (seat was already free).' : 'Seat released.', res.released === false ? 'warning' : 'success');
+        return afterChange(id);
+      }).catch(function (err) { S.toast(S.friendly(err), 'danger'); S.setBusy(btn, false); });
+    });
+  }
+
+  /* ---------- product key dialog (shown once) ---------- */
+
+  var dlgKey = $('#dlg-key');
+  function showKey(key, subtitle) {
+    $('#key-value').textContent = key || '';
+    $('#key-sub').textContent = subtitle || '';
+    S.setBusy($('#key-copy'), false);
+    $('#key-copy').textContent = 'Copy';
+    dlgKey.showModal();
+  }
+  $('#key-copy').addEventListener('click', function () {
+    var btn = this;
+    S.copyText($('#key-value').textContent).then(function (ok) {
+      btn.textContent = ok ? 'Copied' : 'Copy failed';
+      setTimeout(function () { btn.textContent = 'Copy'; }, 1800);
+    });
+  });
+  function clearKey() { $('#key-value').textContent = ''; $('#key-sub').textContent = ''; }
+  $('#key-close').addEventListener('click', function () { clearKey(); dlgKey.close(); });
+  dlgKey.addEventListener('close', clearKey);
+  dlgKey.addEventListener('cancel', function (e) { e.preventDefault(); clearKey(); dlgKey.close(); });
+
+  /* ---------- new customer ---------- */
+
+  var dlgNew = $('#dlg-new');
+  $('#btn-new').addEventListener('click', function () {
+    $('#form-new').reset();
+    S.hideMsg($('#new-msg'));
+    dlgNew.showModal();
+    $('#new-email').focus();
+  });
+  $('#new-cancel').addEventListener('click', function () { dlgNew.close(); });
+  $('#form-new').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var email = $('#new-email').value.trim();
+    var months = parseInt($('#new-months').value, 10);
+    var maxDevices = parseInt($('#new-devices').value, 10);
+    var note = $('#new-note').value.trim();
+    var msg = $('#new-msg');
+    S.hideMsg(msg);
+    if (!email) return S.showMsg(msg, 'Enter the customer email.', 'danger');
+    if (!(months >= 1 && months <= 36)) return S.showMsg(msg, 'Months must be between 1 and 36.', 'danger');
+    if (!(maxDevices >= 1 && maxDevices <= 20)) return S.showMsg(msg, 'Max devices must be between 1 and 20.', 'danger');
+    var params = { customer_email: email, months: months, max_devices: maxDevices };
+    if (note) params.note = note;
+    var btn = $('#new-submit');
+    S.setBusy(btn, true, 'Creating…');
+    api('create_entitlement', params).then(function (res) {
+      dlgNew.close();
+      showKey(res.product_key, 'Product key for ' + email);
+      var newId = res.entitlement && res.entitlement.id;
+      return loadList('').then(function () { $('#in-search').value = ''; if (newId) return openDetail(newId); })
+        .catch(function (err) { S.toast(S.friendly(err), 'danger'); });
+    }).catch(function (err) { S.showMsg(msg, S.friendly(err), 'danger'); })
+      .then(function () { S.setBusy(btn, false); });
+  });
+
+  /* ---------- connect / disconnect ---------- */
+
+  $('#form-connect').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var msg = $('#connect-msg');
+    S.hideMsg(msg);
+    var base = S.setBase($('#in-base').value);
+    $('#in-base').value = base;
+    var t = $('#in-token').value.trim();
+    if (!t) return S.showMsg(msg, 'Enter the admin token.', 'danger');
+    token = t;
+    var btn = $('#btn-connect');
+    S.setBusy(btn, true, 'Connecting…');
+    setConn('busy', 'Connecting…');
+    loadList('').then(function () {
+      saveToken(t);
+      $('#in-token').value = '';
+      showMain();
+      setConn('ok', 'Connected · ' + S.hostOf(base));
+    }).catch(function (err) {
+      token = '';
+      setConn('fail', 'Not connected');
+      S.showMsg(msg, S.friendly(err), 'danger');
+    }).then(function () { S.setBusy(btn, false); });
+  });
+
+  $('#btn-disconnect').addEventListener('click', function () {
+    saveToken('');
+    token = '';
+    entitlements = [];
+    closeDetail();
+    $('#in-search').value = '';
+    showConnect();
+    S.toast('Disconnected. Token removed from this browser.', 'info');
+  });
+
+  S.bindSettingsLinks(function (base) {
+    $('#in-base').value = base;
+    if (token) {
+      setConn('busy', 'Connecting…');
+      refreshList().then(function () {
+        if (elConn.classList.contains('busy')) setConn('ok', 'Connected · ' + S.hostOf(base));
+      });
+    }
+  });
+
+  /* ---------- boot ---------- */
+
+  if (token) {
+    showMain();
+    setConn('busy', 'Connecting…');
+    loadList('').then(function () {
+      setConn('ok', 'Connected · ' + S.hostOf(S.getBase()));
+    }).catch(function (err) {
+      if (err.code === 'unauthorized') {
+        setConn('fail', 'Token rejected');
+        S.showMsg($('#list-msg'), S.friendly(err) + ' Use Disconnect to enter a new token.', 'danger');
+      } else {
+        setConn('fail', 'Connection failed');
+        S.showMsg($('#list-msg'), S.friendly(err), 'danger');
+      }
+    });
+  } else {
+    showConnect();
+  }
+})();
+</script>
+</body>
+</html>
